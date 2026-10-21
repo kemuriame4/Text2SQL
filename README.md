@@ -75,16 +75,16 @@
             行业的专业术语？  metric
             指标需要哪些字段？ 指标字段关系表
 
-        向量数据如何存储？
+        向量数据如何存储？ (把数据库中的字段描述、指标描述等文本转换成向量，再连同 ID 和元数据一起存入向量数据库)
             字段信息
-                向量检索召回字段，知不知道字段是那一张表？
+                向量检索召回字段，知不知道字段是那一张表？ (知道 , 向量数据库存储字段时 ,payload中有table_idd)
                 有没有办法拿到表的信息？根据表id查询mysql数据库
                 能不能查出表的主外键？根据表id查询mysql数据库的字段表
             指标信息
                 向量召回了指标，根据这个信息获取到指标对应的字段
                 拿到了关联字段，能不能获取字段信息和表信息、表的关联关系
 
-            字段的向量存储保存多少个数据点？
+            字段的向量存储保存多少个数据点？ (根据业务需求 ,可一个可多个)
                 字段描述： 订单成交金额
                 别名： 成交金额、订单金额、销售金额
                 name  字段   三个别名
@@ -94,7 +94,7 @@
                 别名：有多少个别名存多少个数据点  3 4 5
                 负载数据为同一个数据
                 数据点的id不能是字段id，不然数据点会被覆盖
-            负载数据如何存储？
+            负载数据如何存储？ (以 JSON 对象的形式保存)
                 是存储完整的字段信息：
                     有可能出现mysql与qdrant数据不一致问题；
                     但是保留了完整的信息，性能相对查询数据要高
@@ -104,16 +104,17 @@
 
 1、搭建项目
     三层目录结构的搭建
-        [api](app/api)   ：对外的接口
-        [client](app/client)： 连接mysql、qdrant 、es、Embedding的客户端
-        [conf](app/conf) 读取配置文件的代码
-        [entity](app/entity) 业务实体
-        [mapper](app/mapper) 业务实体与数据实体转换工具类
-        [model](app/model) 数据实体
-        [repository](app/repository) 数据交互层
-        [script](app/script) 脚本代码
-        [service](app/service) 业务逻辑层
-        [utils](app/utils) 工具
+        [API](APP/API)  ：对外的接口
+        [client](APP/client)  ： 连接mysql、qdrant 、es、Embedding的客户端
+        [config](APP/config)  :读取配置文件的代码
+        [entiry](APP/entiry)  :业务实体
+        [mapper](APP/mapper)  :业务实体与数据实体转换工具类
+        [model](APP/model)  :数据实体
+        [repository](APP/repository)  :数据交互层
+        [script](APP/script)  :脚本代码
+        [service](APP/service)  :业务逻辑层
+        [utils](APP/utils)  :工具
+
     引入log模块
         uv add loguru
         日志级别：
@@ -128,13 +129,6 @@
         加载配置文件
     业务代码的编写
             
-
-
-            
-             
-    
-    
-
 
 
 
