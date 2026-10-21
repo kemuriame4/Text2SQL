@@ -36,7 +36,7 @@ def trace_filter(record):
 import os
 from loguru import logger
 
-LOG_DIR = "d:/logs"  # 或项目内的 logs/
+LOG_DIR = "d:/python_project/Text2SQL_1021/app/utils"  # 或项目内的 logs/
 os.makedirs(LOG_DIR, exist_ok=True)  # 确保目录存在
 
 logger.remove()  # 清掉默认 stderr handler，避免重复
