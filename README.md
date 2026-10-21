@@ -102,7 +102,32 @@
                 还是存储字段id
                     针对频繁修改数据，采用存储id的方式，再反向mysql查询；
                     效率相对要低一点
-                
+
+1、搭建项目
+    三层目录结构的搭建
+        [api](app/api)   ：对外的接口
+        [client](app/client)： 连接mysql、qdrant 、es、Embedding的客户端
+        [conf](app/conf) 读取配置文件的代码
+        [entity](app/entity) 业务实体
+        [mapper](app/mapper) 业务实体与数据实体转换工具类
+        [model](app/model) 数据实体
+        [repository](app/repository) 数据交互层
+        [script](app/script) 脚本代码
+        [service](app/service) 业务逻辑层
+        [utils](app/utils) 工具
+    引入log模块
+        uv add loguru
+        日志级别：
+            debug info warning error  级别由低到高
+        全链路日志监控
+            在请求入口设置 ID
+        日志的保存策略
+    设计配置文件
+        系统的配置文件
+
+        业务配置文件：元数据配置文件
+        加载配置文件
+    业务代码的编写
             
 
 
