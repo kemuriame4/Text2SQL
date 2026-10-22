@@ -1,0 +1,13 @@
+tables:
+  - name: dim_region
+    role: 0
+    description: 地区维度表，用于描述订单发送的地理区域信息
+    columns:
+      - name: region_id
+        role: 0
+        description: 地区的唯一标识
+        alias: [地区ID,区域ID]
+        sync: false
+      - name: province
+        description: 订单所属的省份
+        alias: [省份，省，所在省]
