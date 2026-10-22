@@ -3,7 +3,7 @@ db_meta:
     port: 3306
     user: root
     password: duoceshi123
-    database: meta
+    database: meta_1022
 db_dw:
     host: 172.16.50.95
     port: 3306

@@ -1,11 +1,11 @@
-import datetime
+from datetime import datetime
 from dataclasses import dataclass
 
 
 @dataclass
 class CommonBaseEntity:
-    del_flag: str
-    create_time: datetime
-    create_by: str
-    update_time: datetime
-    update_by: str
+    del_flag: str | None = '0'
+    create_time: datetime | None = datetime.now()
+    create_by: str | None = None
+    update_time: datetime | None = datetime.now()
+    update_by: str | None = None
