@@ -10,7 +10,13 @@ class TableInfoMapper:
     '''
     @staticmethod
     def to_entity(model:TableInfoModel)-> TableInfoEntity:
-        return TableInfoEntity(**asdict(model))
+        return TableInfoEntity(
+            id=model.id,
+            name=model.name,
+            description=model.description,
+            role=model.role,
+
+        )
 
     @staticmethod
     def to_model(entity: TableInfoEntity) -> TableInfoModel:
