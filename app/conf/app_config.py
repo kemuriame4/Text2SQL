@@ -2,6 +2,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from omegaconf import OmegaConf
 
+from app.utils.load_config_util import load_config
+
+
 @dataclass
 class BaseConfig:
     host: str
@@ -38,8 +41,5 @@ class AppConfig:
     qdrant: QdrantConfig
 
 file_path = Path(__file__).parents[2]/'conf'/'app_config.yaml'
-print(file_path)
-config = OmegaConf.load(str(file_path))
-schema = OmegaConf.structured(config)
-app_config = OmegaConf.to_object(OmegaConf.merge(config, schema))
+app_config: AppConfig = load_config(str(file_path))
 print(app_config)
