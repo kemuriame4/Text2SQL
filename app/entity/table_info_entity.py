@@ -11,7 +11,7 @@ class TableInfoEntity(CommonBaseEntity):
     role : 表角色   事实表、维度表
     description 表描述
     '''
-    id:str
-    name:str
-    role:str
-    description:str
+    id:str | None = None
+    name:str | None = None
+    role:str | None = None
+    description:str | None = None
