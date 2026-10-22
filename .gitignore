@@ -1,2 +1,12 @@
 text2sql-生成链路.html
 复习笔记-Text2SQL.md
+/.idea/.gitignore
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/Text2SQL1021.iml
+/uv.lock
+/.idea/vcs.xml
+/三库对照-元数据示例.html
+/三库横向对比.html
