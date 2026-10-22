@@ -10,7 +10,16 @@ class ColumnInfoMapper:
     '''
     @staticmethod
     def to_entity(model:ColumnInfoModel)-> ColumnInfoEntity:
-        return ColumnInfoEntity(**asdict(model))
+        return ColumnInfoEntity(
+            id= model.id,
+            name=model.name,
+            description=model.description,
+            type=model.type,
+            alias=model.alias,
+            examples=model.examples,
+            role=model.role,
+            table_id=model.table_id,
+        )
 
     @staticmethod
     def to_model(entity: ColumnInfoEntity) -> ColumnInfoModel:

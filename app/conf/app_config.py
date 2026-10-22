@@ -4,6 +4,8 @@ from pathlib import Path
 
 from omegaconf import OmegaConf
 
+from app.utils.load_config_util import load_config
+
 
 @dataclass
 class BaseConfig:
@@ -39,16 +41,11 @@ class AppConfig:
 
 #加载配置文件，将配置文件的信息解析到appConfig对象中
 file_path= Path(__file__).parents[2] / 'conf' /'app_config.yaml'
-print('-'*50)
-print(file_path)
-context1 = OmegaConf.load(file_path)
-print('-'*50)
-print(context1)
-schema = OmegaConf.structured(AppConfig)
-print('-'*50)
-print(schema)
-
-app_config = OmegaConf.to_object(OmegaConf.merge(schema, context1))
+# context = OmegaConf.load(file_path)
+# schema = OmegaConf.structured(AppConfig)
+#
+# app_config = OmegaConf.to_object(OmegaConf.merge(schema, context))
+appConfig: AppConfig = load_config(file_path,AppConfig)
 # 注意： 配置文件属性名称一定要与class的属性名称一致，不然会导致数据无法正确加载
-print('-'*50)
-print(app_config)
+
+# print(appConfig)
