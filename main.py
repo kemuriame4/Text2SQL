@@ -1,4 +1,6 @@
 # This is a sample Python script.
+import uuid
+
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
@@ -11,6 +13,9 @@ def print_hi(name):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, "dim_region.region_id_0"))
+    print(point_id)
+    point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, "dim_region.region_id_1"))
+    print(point_id)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
