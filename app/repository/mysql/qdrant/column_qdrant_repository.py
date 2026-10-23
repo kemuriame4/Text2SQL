@@ -29,5 +29,3 @@ class ColumnQdrantRepository:
 
             batch_points = [PointStruct(id=id,vector=embedding,payload=asdict(payload)) for id,embedding,payload in batch]
             await self._client.upsert(collection_name=self._collection_name,points=batch_points)
-
-            

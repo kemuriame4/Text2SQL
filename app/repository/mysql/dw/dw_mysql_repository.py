@@ -11,6 +11,6 @@ class DwMysqlRepository:
         return  {row.Field:row.Type for row in result.fetchall()}
 
     async def get_column_values(self,table_name:str,column_name:str,limit:int=5):
-        sql = f'select distinct {column_name} from {table_name} limit{limit}'
+        sql = f'select distinct {column_name} from {table_name} limit {limit}'
         result = await self.session.execute(text(sql))
         return result.scalars().fetchall()
