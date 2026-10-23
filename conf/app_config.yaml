@@ -1,11 +1,11 @@
 db_meta:
-    host: 172.16.50.95
+    host: 192.168.21.29
     port: 3306
     user: root
     password: duoceshi123
     database: meta_1022
 db_dw:
-    host: 172.16.50.95
+    host: 192.168.21.29
     port: 3306
     user: root
     password: duoceshi123

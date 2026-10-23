@@ -1,3 +1,7 @@
+"""日志配置模块：用 loguru 把日志按天写到文件，并给每条日志带上 trace_id。
+
+导入本模块即完成 logger 配置（模块级代码会立即执行）。
+"""
 from loguru import logger
 
 # logger.debug('debug')
@@ -17,6 +21,12 @@ _trace_id: ContextVar[str] = ContextVar("trace_id", default="")
 
 def trace_filter(record):
     """将上下文中的 trace_id 注入到每条日志记录中"""
+    # 做什么：loguru 的过滤器，给每条日志的 extra 里补一个 trace_id 字段。
+    # 参数：
+    # record (dict)：loguru 传进来的单条日志记录，包含 time / level / message / extra 等键。
+    # 返回：
+    # bool：恒为 True，表示这条日志放行。
+    # 注意：没有设置 trace_id 时填字符串 "N/A"；返回值不能是 None，否则这条日志会被丢弃。
     record["extra"]["trace_id"] = _trace_id.get() or "N/A"
     return True
 
@@ -41,6 +51,7 @@ os.makedirs(LOG_DIR, exist_ok=True)  # 确保目录存在
 
 logger.remove()  # 清掉默认 stderr handler，避免重复
 
+# 模块级配置：导入即生效，控制台不再输出日志，只写文件
 logger.add(
     os.path.join(LOG_DIR, "app_{time:YYYY-MM-DD}.log"),  # 按天分文件
     level="INFO",
@@ -59,11 +70,19 @@ logger.add(
 
 # 在请求入口设置 ID（例如 FastAPI 中间件）
 def set_trace_id(trace_id: str = None):
+    """
+    做什么：给当前上下文设置 trace_id，用于把一次请求里分散的日志串起来。
+    参数：
+    trace_id (str)：可选，不传则自动生成一个 uuid4 的十六进制串。
+    返回：
+    str：最终生效的 trace_id。
+    注意：ContextVar 只在当前线程 / 当前协程上下文有效，新起线程拿到的是默认空值。
+    """
     tid = trace_id or uuid4().hex
     _trace_id.set(tid)
     return tid
 
 if __name__ == '__main__':
-    set_trace_id()
+    set_trace_id()                  # 先设 trace_id，后续日志才带得上
     logger.info('这是第一条日志')
     write_log()
