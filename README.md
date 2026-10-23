@@ -107,7 +107,7 @@
         [API](APP/API)  ：对外的接口
         [client](APP/client)  ： 连接mysql、qdrant 、es、Embedding的客户端
         [config](APP/config)  :读取配置文件的代码
-        [entiry](APP/entiry)  :业务实体
+        [entiry](APP/entity)  :业务实体
         [mapper](APP/mapper)  :业务实体与数据实体转换工具类
         [model](APP/model)  :数据实体
         [repository](APP/repository)  :数据交互层

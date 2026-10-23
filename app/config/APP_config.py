@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from multiprocessing import context
 from pathlib import Path
+
+import load_config
 from omegaconf import OmegaConf
 
 @dataclass
@@ -36,9 +38,9 @@ class APPConfig(BaseConfig):
 
 #加载配置文件 , 将配置文件的信息解析到APPConfig对象中
 file_path = Path(__file__).parent[2] / 'config'/'APP_config.yaml'
-context = OmegaConf.load(file_path)
-schema = OmegaConf.Structured(APPConfig)
+# context = OmegaConf.load(file_path)
+# schema = OmegaConf.Structured(APPConfig)
 
-APP_config = OmegaConf.to_object(OmegaConf.merge(schema, context))
+APPconfig : APPConfig = load_config(file_path ,APPConfig)
 
-print(APP_config)
+print(APPconfig)
