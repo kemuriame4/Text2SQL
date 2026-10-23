@@ -15,6 +15,7 @@ class BaseConfig:
 
 @dataclass
 class DBConfig(BaseConfig):
+    user :str
     password :str
     database :str
 

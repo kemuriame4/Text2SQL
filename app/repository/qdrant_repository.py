@@ -8,7 +8,7 @@ from app.entity.column_info_entity import ColumnInfoEntity
 
 
 class ColumnQdrantRepository:
-    _collection_name = 'column_qdrant_oy'
+    _collection_name = 'column_qdrant_wll'
     def __init__(self, client:AsyncQdrantClient,size:int = 1024):
         self._client = client
         self._size = size

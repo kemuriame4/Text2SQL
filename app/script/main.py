@@ -1,8 +1,11 @@
 # 脚本的入口
 import asyncio
+import sys
 from pathlib import Path
 
-from app.service.base_init_service import MetaService
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from app.service.base_init_service import BaseInitService
 
 
 async def async_main():
@@ -11,8 +14,8 @@ async def async_main():
         调用业务逻辑层
     '''
     file_path = Path(__file__).parents[2] / 'conf' / 'meta_config.yaml'
-    service = MetaService()
-    await  service.build(file_path)
+    service = BaseInitService()
+    await service.build(file_path)
 
 
 '''
