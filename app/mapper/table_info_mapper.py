@@ -6,11 +6,17 @@ from app.model.table_info_model import TableInfoModel
 
 class TableInfoMapper:
     '''
-    字段信息实体转换工具
+    表信息实体转换工具
     '''
     @staticmethod
     def to_entity(model:TableInfoModel)-> TableInfoEntity:
-        return TableInfoEntity(**asdict(model))
+        return TableInfoEntity(
+            id=model.id,
+            name=model.name,
+            description=model.description,
+            role=model.role,
+
+        )
 
     @staticmethod
     def to_model(entity: TableInfoEntity) -> TableInfoModel:

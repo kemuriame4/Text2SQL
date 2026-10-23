@@ -5,6 +5,8 @@ from pathlib import Path
 
 from omegaconf import OmegaConf
 
+from app.utils.load_config_util import load_config
+
 
 @dataclass
 class BaseConfig:
@@ -38,10 +40,4 @@ class AppConfig:
 
 file_path = Path(__file__).parents[2] / 'conf' / 'app_config.yaml'
 
-context = OmegaConf.load(file_path)
-
-schema = OmegaConf.structured(AppConfig)
-
-app_config = OmegaConf.to_object(OmegaConf.merge(context,schema))
-
-print(app_config)
+appConfig = load_config(file_path, AppConfig)
