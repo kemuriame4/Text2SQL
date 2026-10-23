@@ -1,0 +1,22 @@
+db_meta:
+    host: 172.16.50.95
+    port: 3306
+    user: root
+    password: duoceshi123
+
+db_dw:
+    host: 172.16.50.95
+    port: 3306
+    user: root
+    password: duoceshi123
+    database: dw
+qdrant:
+    host: 172.16.50.95
+    port: 6333
+embedding:
+    host: 172.16.50.95
+    port: 8081
+    embedding_size: 1024
+es:
+    host: 172.16.50.95
+    port: 9200

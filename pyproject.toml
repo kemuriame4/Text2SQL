@@ -2,4 +2,7 @@
 name = "text2sql1021"
 version = "0.1.0"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "loguru>=0.7.3",
+    "sqlalchemy>=2.1.6",
+]
