@@ -1,0 +1,25 @@
+# Python 字节码缓存
+__pycache__/
+*.py[cod]
+
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+
+# 环境变量与本地配置
+.env
+.env.local
+
+# 日志
+*.log
+
+# 测试与构建产物
+.pytest_cache/
+build/
+dist/
+*.egg-info/
