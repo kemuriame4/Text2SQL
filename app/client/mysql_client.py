@@ -19,7 +19,7 @@ class CustomMysqlClient:
             pool_recycle=3600,
         )
         # 创建会话工厂
-        self.session_factory = async_sessionmaker(
+        self.sessionFactory = async_sessionmaker(
             async_engine,
             expire_on_commit=False,
         )
