@@ -1,4 +1,8 @@
 """元数据构建服务：读 meta_config.yaml，从数据仓库补齐类型和示例值，再写入元数据库。"""
+import uuid
+
+from app.client.custom_embedding_client import CustomEmbeddingClient
+from app.client.custom_qdrant_client import CustomQdrantClient
 from app.client.mysql_client import CustomMySqlClient
 from app.conf.app_config import  appConfig
 from app.conf.meta_config import MetaConfig, TableConfig
@@ -9,6 +13,7 @@ from app.repository.mysql.column_info_mysql_repository import ColumnInfoMySqlRep
 from app.repository.mysql.dw import dw_mysql_repostory
 from app.repository.mysql.dw.dw_mysql_repostory import DwMysqlRepostory
 from app.repository.mysql.table_info_mysql_repository import TableInfoMySqlRepository
+from app.repository.qdrant.column_qdrant_repository import ColumnQdrantRepository
 from app.utils.load_config_util import load_config
 
 
@@ -79,11 +84,13 @@ class MetaService:
                         # 从字典中获取数据类型
                         type=types[column.name],   # 数仓里查不到该列会抛 KeyError
                         examples=examples,
-                        table_id= table.name
+                        table_id= table.name,
+                        # qdrant_id= uuid.uuid4(),
                     )
                     # 判断字段是否存在
                     rowColumn = await self._column_info_mysql_repository.get_column_info_by_id(columnInfo.id)
                     if rowColumn is not None:
+                        columnInfo.qdrant_id = rowColumn.qdrant_id
                         updateColumnInfos.append(columnInfo)
                     else:
                         columnInfos.append(columnInfo)
@@ -92,14 +99,54 @@ class MetaService:
             # 注意：这里是 if/else 互斥，表或字段"既有新增又有更新"时，新增部分会被整批跳过
             if len(updateTableInfos) > 0:
                 await self._table_info_mysql_repository.batch_update_table_infos(updateTableInfos)
-            else:
+            if len(tableInfos) > 0:
                 await  self._table_info_mysql_repository.batch_add_table_infos(tableInfos)
             if len(updateColumnInfos) > 0:
                 await self._column_info_mysql_repository.batch_update_column_infos(updateColumnInfos)
-            else:
+            if len(columnInfos) > 0:
                 await self._column_info_mysql_repository.batch_add_column_infos(columnInfos)
         # 返回所有字段的信息列表
         return columnInfos+updateColumnInfos
+
+    async def _save_columns_to_qdrant(self,column_infos:list[ColumnInfoEntity]):
+        # 创建集合
+        await self._column_qdrant_repository.create_collection()
+        points: list[dict] = []
+        for columnInfo in column_infos:
+            i: int = 0
+            points.append({
+                'id': uuid.uuid4(),
+                'embedding_text': columnInfo.name,
+                'payload': columnInfo
+            })
+            i += 1
+            points.append({
+                'id': uuid.uuid4(),
+                'embedding_text': columnInfo.description,
+                'payload': columnInfo
+            })
+
+            for alias in columnInfo.alias:
+                i += 1
+                points.append({
+                    'id': uuid.uuid4(),
+                    'embedding_text': alias,
+                    'payload': columnInfo
+                })
+
+
+        embedding_texts = [point['embedding_text'] for point in points]
+        ids = [point['id'] for point in points]
+        payloads = [point['payload'] for point in points]
+        embeddings = []
+        # 将embedding_text 向量化
+        batch_embedding = 20
+        for i in range(0,len(embedding_texts),batch_embedding):
+            batch_embedding_texts = embedding_texts[i:i+batch_embedding]
+            batch_embeddings = await self._embedding_client.aembed_documents(batch_embedding_texts)
+            embeddings.extend(batch_embeddings)
+        await self._column_qdrant_repository.insert_and_update(ids,embeddings,payloads)
+
 
     async def build(self,file_path:str):
         '''
@@ -116,14 +163,26 @@ class MetaService:
         meta_mysql_client.get_session_factory()   # 无返回值，靠副作用生成 sessionFactory
         dw_mysql_client.get_session_factory()
         # 同时打开两个会话：一个写元数据库、一个读数仓
+
+        # 获取qdrant连接
+        qdrant_client = CustomQdrantClient(appConfig.qdrant)
+        qdrant_client.get_client()
+
+        self._embedding_client = CustomEmbeddingClient(appConfig.embedding).get_client()
+
+        # 实例化数据交互层ColumnQdrantRepository
         async  with meta_mysql_client.sessionFactory() as meta_session, dw_mysql_client.sessionFactory() as dw_session:
             self._column_info_mysql_repository =ColumnInfoMySqlRepository(meta_session)
             self._table_info_mysql_repository =TableInfoMySqlRepository(meta_session)
             self._dw_mysql_repostory = DwMysqlRepostory(dw_session)
-
+            self._column_qdrant_repository = ColumnQdrantRepository(qdrant_client.client,appConfig.embedding.embedding_size)
 
             if meta_config is not None and meta_config.tables is not None:
                 # 将tables数据解析并且写入到mysql数据库中
                 columnInfos = await  self._save_tables_to_mysql(meta_config.tables)
                 print('columnsInfo数据为：',columnInfos)
                 # 注意：meta_config.metrics 读进来了但没有任何使用，指标表 t_metric_info 始终为空
+                # print('columnsInfo数据为：',columnInfos)
+                # 将字段信息写入到qdrant
+                await  self._save_columns_to_qdrant(columnInfos)
+

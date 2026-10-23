@@ -32,4 +32,5 @@ class ColumnInfoEntity(CommonBaseEntity):
     alias: list[str]| None = None
     table_id: str| None = None
     examples: list[Any] | None = None
+    # qdrant_id: str | None = None
 

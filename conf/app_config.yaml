@@ -1,22 +1,22 @@
 db_meta:
-    host: 192.168.21.29
+    host: 111.230.143.239
     port: 3306
     user: root
     password: duoceshi123
     database: meta_1022
 db_dw:
-    host: 192.168.21.29
+    host: 111.230.143.239
     port: 3306
     user: root
     password: duoceshi123
     database: dw
 qdrant:
-    host: 172.16.50.95
+    host: 111.230.143.239
     port: 6333
 embedding:
-    host: 172.16.50.95
+    host: 111.230.143.239
     port: 8081
     embedding_size: 1024
 es:
-    host: 172.16.50.95
+    host: 111.230.143.239
     port: 9200

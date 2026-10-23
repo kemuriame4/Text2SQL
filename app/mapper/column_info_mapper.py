@@ -29,6 +29,7 @@ class ColumnInfoMapper:
             examples=model.examples,
             role=model.role,
             table_id=model.table_id,
+            # qdrant_id=model.qdrant_id,
         )
 
     @staticmethod

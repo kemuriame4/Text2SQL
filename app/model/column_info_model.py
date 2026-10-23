@@ -25,6 +25,7 @@ class ColumnInfoModel(CommonBase):
     type:Mapped[str] = mapped_column(String(64),comment='数据类型')
     alias:Mapped[str] = mapped_column(JSON,comment='别名')
     table_id:Mapped[str] = mapped_column(String(32),comment='表id')
+    qdrant_id:Mapped[str] = mapped_column(String(32),comment='表id')
 
 
 
