@@ -7,7 +7,7 @@ from loguru import logger
 
 from contextvars import ContextVar
 from uuid import uuid4
-from loguru import logger
+
 import sys
 
 from app.utils.log_util1 import write_log
