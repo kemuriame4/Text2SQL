@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from pathlib import Path
-from omegaconf import OmegaConf
 
 from app.utils.load_config_util import load_config
 
@@ -32,6 +31,7 @@ class EsConfig(BaseConfig):
 class EmbeddingConfig(BaseConfig):
     embedding_size: int
 
+
 @dataclass
 class AppConfig:
     db_dw: DbConfig
@@ -40,6 +40,6 @@ class AppConfig:
     embedding: EmbeddingConfig
     qdrant: QdrantConfig
 
-file_path = Path(__file__).parents[2]/'conf'/'app_config.yaml'
-app_config: AppConfig = load_config(str(file_path))
-print(app_config)
+
+file_path = Path(__file__).parents[2] / 'conf' / 'app_config.yaml'
+app_config: AppConfig = load_config(str(file_path), schema=AppConfig)

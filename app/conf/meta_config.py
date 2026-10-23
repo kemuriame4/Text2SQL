@@ -1,30 +1,32 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
-class TableConfig :
-    name:str
-    role:str
-    description:str
-    columns :list[str]
+class ColumnsConfig:
+    name: str
+    role: str
+    description: str
+    alias: list[str] = field(default_factory=list)
+    sync: bool = False
+
 
 @dataclass
-class ColumnsConfig :
-    name:str
-    role:str
-    description:str
-    alias:list[str]
-    sync:bool
+class TableConfig:
+    name: str
+    role: str
+    description: str
+    columns: list[ColumnsConfig] = field(default_factory=list)
+
 
 @dataclass
-class MetricConfig :
-    name:str
-    description:str
-    alias:list[str]
-    relevant_columns:list[str]
-    sync:bool
+class MetricConfig:
+    name: str
+    description: str
+    relevant_columns: list[str] = field(default_factory=list)
+    alias: list[str] = field(default_factory=list)
+
+
 @dataclass
 class MetaConfig:
-    tables:TableConfig
-    metrics:MetricConfig
-
+    tables: list[TableConfig] = field(default_factory=list)
+    metrics: list[MetricConfig] = field(default_factory=list)
