@@ -589,6 +589,36 @@ wheels = [
 ]
 
 [[package]]
+name = "elastic-transport"
+version = "9.4.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "certifi" },
+    { name = "sniffio" },
+    { name = "urllib3" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/52/be/a719a217ed7f179c9e41821dff9dfd28415b21bc94da9d35fff84f7951b2/elastic_transport-9.4.2.tar.gz", hash = "sha256:366f4614f4544c5fb5d780c82f57af8f30492b44a68ed20750390aa81e20c2ea", size = 79310, upload-time = "2026-06-16T15:27:17.182Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0b/e4/9b7ef7a8e0bb416e0fe1879c92295041cf81e5a47e3c3110744e89b6eb35/elastic_transport-9.4.2-py3-none-any.whl", hash = "sha256:33dc89bb1855faa8b98ae8b036405a39c562778dbcdbe4a00a2eaf753148556c", size = 66314, upload-time = "2026-06-16T15:27:15.875Z" },
+]
+
+[[package]]
+name = "elasticsearch"
+version = "9.5.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "elastic-transport" },
+    { name = "python-dateutil" },
+    { name = "sniffio" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/aa/b7/87bce7be89c822a63608e3c946a80d99fce1066ce9e9691bcb6b8ef57631/elasticsearch-9.5.1.tar.gz", hash = "sha256:98210cd96c256dd9936f58e1c762aba94da7db7d38d058bb0fbaf7e4b9567146", size = 930439, upload-time = "2026-09-09T20:17:03.842Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/78/6e/047d517a64249abd0a1b5b8c9f8244e3bf48c6916d5a68e9c76c52fc266d/elasticsearch-9.5.1-py3-none-any.whl", hash = "sha256:a980d8888ae70c03f0a1db6b2c5e3e39bf4e235abea737f522d2fd1d2d20bb99", size = 1018374, upload-time = "2026-09-09T20:17:00.18Z" },
+]
+
+[[package]]
 name = "executing"
 version = "2.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2804,6 +2834,7 @@ dependencies = [
     { name = "asyncmy" },
     { name = "ddgs" },
     { name = "dotenv" },
+    { name = "elasticsearch" },
     { name = "faiss-cpu" },
     { name = "fastapi" },
     { name = "huggingface-hub" },
@@ -2813,7 +2844,6 @@ dependencies = [
     { name = "langchain-community" },
     { name = "langchain-openai" },
     { name = "langgraph" },
-    { name = "langsmith" },
     { name = "loguru" },
     { name = "omegaconf" },
     { name = "pymysql" },
@@ -2829,6 +2859,7 @@ requires-dist = [
     { name = "asyncmy", specifier = ">=0.2.16" },
     { name = "ddgs", specifier = ">=9.16.0" },
     { name = "dotenv", specifier = ">=0.9.9" },
+    { name = "elasticsearch", specifier = ">=9.5.1" },
     { name = "faiss-cpu", specifier = ">=1.15.1" },
     { name = "fastapi", specifier = "==0.141.1" },
     { name = "huggingface-hub", specifier = ">=2.2.0" },
@@ -2838,7 +2869,6 @@ requires-dist = [
     { name = "langchain-community", specifier = ">=0.4.2" },
     { name = "langchain-openai", specifier = ">=1.6.7" },
     { name = "langgraph", extras = ["visualization"], specifier = ">=1.2.14" },
-    { name = "langsmith", specifier = ">=0.14.4" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "omegaconf", specifier = ">=2.4.0" },
     { name = "pymysql", specifier = ">=1.2.3" },
