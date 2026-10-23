@@ -39,7 +39,7 @@ class MetaService:
                     updateTableInfos.append(tableInfo)
                 else:
                     tableInfos.append(tableInfo)
-                # tableInfos.append(tableInfo)
+                # cloumnInfos.append(tableInfo)
                 # type 从数据仓库中获取字段的数据类型
                 types =await self._dw_mysql_repostory.get_column_type_by_name(table.name)
 
