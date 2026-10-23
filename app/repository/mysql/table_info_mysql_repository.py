@@ -1,3 +1,4 @@
+from dataclasses import asdict
 
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -53,4 +54,5 @@ class TableInfoMySqlRepository:
         批量修改
         '''
         stmt = update(TableInfoModel)
+        tables = [asdict(table_info) for table_info in table_info_list]
         await self._session.execute(stmt, table_info_list)

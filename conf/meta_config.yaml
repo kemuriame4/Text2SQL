@@ -1,0 +1,49 @@
+tables:
+  - name: dim_region
+    role: 0
+    description: 地区维度表，用于描述订单发送的地理区域信息
+    columns:
+      - name: region_id
+        role: 0
+        description: 地区的唯一标识
+        alias: [地区ID,区域ID]
+        sync: false
+      - name: province
+        role: 3
+        description: 订单所属的省份
+        alias: [省份,省,所在省]
+        sync: true
+      - name: region_name
+        role: 3
+        description: 订单所属的大区名称，如华东、华南等
+        alias: [地区,区域,大区]
+        sync: true
+      - name: country
+        role: 3
+        description: 地区所属国家名称
+        alias: [国家,国家名称]
+        sync: true
+  - name: dim_customer
+    role: 0
+    description: 客户维度表,描述下单客户的基本信息
+    columns:
+      - name: customer_id
+        role: 0
+        description: ID
+        alias: [客户ID,用户ID]
+        sync: false
+      - name: customer_name
+        role: 3
+        description: 客户名称
+        alias: [用户名称]
+        sync: true
+      - name: gender
+        role: 3
+        description: 客户性别
+        alias: [性别]
+        sync: true
+      - name: member_level
+        role: 3
+        description: 客户会员等级
+        alias: [会员等级]
+        sync: true
