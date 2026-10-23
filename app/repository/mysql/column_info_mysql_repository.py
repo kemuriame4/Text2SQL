@@ -7,7 +7,7 @@ from app.entity.column_info_entity import ColumnInfoEntity
 from app.mapper.column_info_mapper import ColumnInfoMapper
 from app.model.column_info_model import  ColumnInfoModel
 
-class ColumnInMySqlRepository:
+class ColumnInfoMySqlRepository:
     def __init__(self,session:AsyncSession):
         self.session = session
 

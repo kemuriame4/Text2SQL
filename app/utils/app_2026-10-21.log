@@ -1,0 +1,2 @@
+2026-10-21 18:20:04.500 | INFO     | trace=8d3606ad4acd41878f8100f7dd74ff1c | __main__:68 | 这是第一条日志
+2026-10-21 18:20:04.500 | ERROR    | trace=8d3606ad4acd41878f8100f7dd74ff1c | app.utils.log_util1:5 | 调用write_log

@@ -11,7 +11,7 @@ class TableInfoMySqlRepository:
     def __init__(self,session:AsyncSession):
         self.session = session
 
-    async def get_table_ifo_by_id(self,id:str):
+    async def get_table_info_by_id(self,id:str):
         result :TableInfoModel = await self.session.get(TableInfoModel,id)
 
         if result is None:
