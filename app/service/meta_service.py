@@ -1,18 +1,28 @@
 import uuid
 
+
+
 from app.client.custom_embedding_client import CustomEmbeddingClient
+from app.client.custom_es_client import CustomESClient
 from app.client.custom_qdrant_client import CustomQdrantClient
 from app.client.mysql_client import CustomMySqlClient
 from app.conf.app_config import  appConfig
-from app.conf.meta_config import MetaConfig, TableConfig
+from app.conf.meta_config import MetaConfig, TableConfig, MetricConfig
 from app.entity.column_info_entity import ColumnInfoEntity
+from app.entity.column_metric_entity import ColumnMetricEntity
+from app.entity.metric_info_entity import MetricInfoEntity
 from app.entity.table_info_entity import TableInfoEntity
+from app.entity.value_info import ValueInfo
+from app.repository.es.column_es_repository import ColumnEsRepository
 from app.repository.mysql import column_info_mysql_repository
 from app.repository.mysql.column_info_mysql_repository import ColumnInfoMySqlRepository
+from app.repository.mysql.column_metric_mysql_repository import ColumnMetricMySqlRepository
 from app.repository.mysql.dw import dw_mysql_repostory
 from app.repository.mysql.dw.dw_mysql_repostory import DwMysqlRepostory
+from app.repository.mysql.metric_info_mysql_repository import MetricInfoMySqlRepository
 from app.repository.mysql.table_info_mysql_repository import TableInfoMySqlRepository
 from app.repository.qdrant.column_qdrant_repository import ColumnQdrantRepository
+from app.repository.qdrant.metric_qdrant_repository import MetricQdrantRepository
 from app.utils.load_config_util import load_config
 
 
@@ -67,20 +77,20 @@ class MetaService:
                     # 判断字段是否存在
                     rowColumn = await self._column_info_mysql_repository.get_column_info_by_id(columnInfo.id)
                     if rowColumn is not None:
-                        columnInfo.qdrant_id = rowColumn.qdrant_id
+                        # columnInfo.qdrant_id = rowColumn.qdrant_id
                         updateColumnInfos.append(columnInfo)
                     else:
                         columnInfos.append(columnInfo)
 
             #  校验是否存在，
-            if len(updateTableInfos) > 0:
-                await self._table_info_mysql_repository.batch_update_table_infos(updateTableInfos)
-            if len(tableInfos) > 0:
-                await  self._table_info_mysql_repository.batch_add_table_infos(tableInfos)
-            if len(updateColumnInfos) > 0:
-                await self._column_info_mysql_repository.batch_update_column_infos(updateColumnInfos)
-            if len(columnInfos) > 0:
-                await self._column_info_mysql_repository.batch_add_column_infos(columnInfos)
+            # if len(updateTableInfos) > 0:
+            #     await self._table_info_mysql_repository.batch_update_table_infos(updateTableInfos)
+            # if len(tableInfos) > 0:
+            #     await  self._table_info_mysql_repository.batch_add_table_infos(tableInfos)
+            # if len(updateColumnInfos) > 0:
+            #     await self._column_info_mysql_repository.batch_update_column_infos(updateColumnInfos)
+            # if len(columnInfos) > 0:
+            #     await self._column_info_mysql_repository.batch_add_column_infos(columnInfos)
         # 返回所有字段的信息列表
         return columnInfos+updateColumnInfos
 
@@ -88,16 +98,17 @@ class MetaService:
         # 创建集合
         await self._column_qdrant_repository.create_collection()
         points: list[dict] = []
+        i = 0
         for columnInfo in column_infos:
-            i: int = 0
+            i = 0
             points.append({
-                'id': uuid.uuid4(),
+                'id': uuid.uuid5(uuid.NAMESPACE_DNS,f'{columnInfo.table_id}_{columnInfo.name}_{i}'),
                 'embedding_text': columnInfo.name,
                 'payload': columnInfo
             })
             i += 1
             points.append({
-                'id': uuid.uuid4(),
+                'id': uuid.uuid5(uuid.NAMESPACE_DNS,f'{columnInfo.table_id}_{columnInfo.name}_{i}'),
                 'embedding_text': columnInfo.description,
                 'payload': columnInfo
             })
@@ -105,11 +116,10 @@ class MetaService:
             for alias in columnInfo.alias:
                 i += 1
                 points.append({
-                    'id': uuid.uuid4(),
+                    'id': uuid.uuid5(uuid.NAMESPACE_DNS,f'{columnInfo.table_id}_{columnInfo.name}_{i}'),
                     'embedding_text': alias,
                     'payload': columnInfo
                 })
-
 
         embedding_texts = [point['embedding_text'] for point in points]
         ids = [point['id'] for point in points]
@@ -122,6 +132,111 @@ class MetaService:
             batch_embeddings = await self._embedding_client.aembed_documents(batch_embedding_texts)
             embeddings.extend(batch_embeddings)
         await self._column_qdrant_repository.insert_and_update(ids,embeddings,payloads)
+
+    async def _save_metrics_to_qdrant(self,metric_infos:list[MetricInfoEntity]):
+        # 创建集合
+        await self._metric_qdrant_repository.create_collection()
+        points: list[dict] = []
+        i = 0
+        for metricInfo in metric_infos:
+            i = 0
+            points.append({
+                'id': uuid.uuid5(uuid.NAMESPACE_DNS,f'{metricInfo.name}_{i}'),
+                'embedding_text': metricInfo.name,
+                'payload': metricInfo
+            })
+            i += 1
+            points.append({
+                'id': uuid.uuid5(uuid.NAMESPACE_DNS,f'{metricInfo.name}_{i}'),
+                'embedding_text': metricInfo.description,
+                'payload': metricInfo
+            })
+
+            for alias in metricInfo.alias:
+                i += 1
+                points.append({
+                    'id': uuid.uuid5(uuid.NAMESPACE_DNS,f'{metricInfo.name}_{i}'),
+                    'embedding_text': alias,
+                    'payload': metricInfo
+                })
+
+        embedding_texts = [point['embedding_text'] for point in points]
+        ids = [point['id'] for point in points]
+        payloads = [point['payload'] for point in points]
+        embeddings = []
+        # 将embedding_text 向量化
+        batch_embedding = 20
+        for i in range(0,len(embedding_texts),batch_embedding):
+            batch_embedding_texts = embedding_texts[i:i+batch_embedding]
+            batch_embeddings = await self._embedding_client.aembed_documents(batch_embedding_texts)
+            embeddings.extend(batch_embeddings)
+        await self._metric_qdrant_repository.insert_and_update(ids,embeddings,payloads)
+
+    async  def _save_columns_to_es(self,column_infos:list[ColumnInfoEntity], tables:TableConfig):
+        # 将tables下的所有的column信息转换为dict
+        column2sync :dict[str,bool] = {}
+        for table in tables:
+            for column in table.columns:
+                column2sync[f'{table.name}.{column.name}'] = column.sync
+
+        valueInfos:list[ValueInfo] = []
+        for columnInfo in column_infos:
+            sync = column2sync.get(columnInfo.id,False)
+
+            if sync:
+                table_name = columnInfo.table_id
+                column_name = columnInfo.name
+                values = await self._dw_mysql_repostory.get_column_values(table_name,column_name,10000)
+
+                current_value_infos = [
+                    ValueInfo(
+                        id= f'{columnInfo.id}.{value}',
+                        value= values,
+                        column_id=columnInfo.id
+                    ) for value in values
+                ]
+                valueInfos.extend(current_value_infos)
+        # 将数据写入到es中
+        # 创建es的索引
+        await self._column_es_repository.createIndex()
+        # 写入数据
+        await self._column_es_repository.insertIndex(valueInfos)
+
+
+
+    async  def _save_metrics_to_mysql(self,metrics:list[MetricConfig]):
+        # 循环对象组装数据
+        metric_infos:list[MetricInfoEntity] = []
+        column_metrics: list[ColumnMetricEntity] = []
+
+        for metric in metrics:
+            metric_info = MetricInfoEntity(
+                id= metric.name,
+                name=metric.name,
+                description=metric.description,
+                alias= metric.alias,
+                relevant_columns= metric.relevant_columns,
+            )
+
+            metric_infos.append(metric_info)
+
+            for column in metric.relevant_columns:
+                column_metrics.append(ColumnMetricEntity(
+                    column_id=column,
+                    metric_id=metric.name,
+                ))
+
+
+        print(metric_infos)
+        print("==============")
+        print(column_metrics)
+
+        # 将数据写入到数据库中
+        # async with self._metric_info_mysql_repository.session.begin():
+        #     await  self._metric_info_mysql_repository.batch_insert_data(metric_infos)
+        #     await  self._column_metric_mysql_repository.batch_insert_data(column_metrics)
+        # 返回指标信息
+        return metric_infos
 
 
     async def build(self,file_path:str):
@@ -144,17 +259,30 @@ class MetaService:
 
         self._embedding_client = CustomEmbeddingClient(appConfig.embedding).get_client()
 
+        # es的客户端
+        self._es_client = CustomESClient(appConfig.es).get_client()
         # 实例化数据交互层ColumnQdrantRepository
         async  with meta_mysql_client.sessionFactory() as meta_session, dw_mysql_client.sessionFactory() as dw_session:
             self._column_info_mysql_repository =ColumnInfoMySqlRepository(meta_session)
             self._table_info_mysql_repository =TableInfoMySqlRepository(meta_session)
+            self._column_metric_mysql_repository =ColumnMetricMySqlRepository(meta_session)
+            self._metric_info_mysql_repository =MetricInfoMySqlRepository(meta_session)
+
             self._dw_mysql_repostory = DwMysqlRepostory(dw_session)
             self._column_qdrant_repository = ColumnQdrantRepository(qdrant_client.client,appConfig.embedding.embedding_size)
+            self._metric_qdrant_repository = MetricQdrantRepository(qdrant_client.client,appConfig.embedding.embedding_size)
+            self._column_es_repository = ColumnEsRepository(self._es_client)
+            # if meta_config is not None and meta_config.tables is not None:
+            #     # 将tables数据解析并且写入到mysql数据库中
+            #     columnInfos = await  self._save_tables_to_mysql(meta_config.tables)
+            #     # print('columnsInfo数据为：',columnInfos)
+            #     # 将字段信息写入到qdrant
+            #     # await  self._save_columns_to_qdrant(columnInfos)
+            #     # 将字段信息写入es中
+            #     await  self._save_columns_to_es(columnInfos,meta_config.tables)
 
-            if meta_config is not None and meta_config.tables is not None:
-                # 将tables数据解析并且写入到mysql数据库中
-                columnInfos = await  self._save_tables_to_mysql(meta_config.tables)
-                # print('columnsInfo数据为：',columnInfos)
-                # 将字段信息写入到qdrant
-                await  self._save_columns_to_qdrant(columnInfos)
+            # 指标信息写入到 mysql 、 qdrant
+            if meta_config is not None and meta_config.metrics is not None:
+                metric_infos = await  self._save_metrics_to_mysql(meta_config.metrics)
+                await  self._save_metrics_to_qdrant(metric_infos)
 

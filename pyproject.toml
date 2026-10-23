@@ -23,4 +23,5 @@ dependencies = [
     "sqlalchemy[asyncio]>=2.1.4",
     "asyncmy>=0.2.16",
     "langgraph[visualization]>=1.2.14",
+    "elasticsearch[async]>=8,<9",
 ]
