@@ -5,10 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="66667fe3-cc3c-4219-9350-84847ad5d129" name="更改" comment="描述文件">
-      <change afterPath="$PROJECT_DIR$/app/conf/meta_config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/service/meta_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/conf/meta_config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/conf/meta_config.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,6 +91,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.log_util" />
         <item itemvalue="Python.log_util" />
         <item itemvalue="Python.log_util" />
         <item itemvalue="Python.log_util" />
