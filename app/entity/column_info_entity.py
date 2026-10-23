@@ -14,11 +14,11 @@ class ColumnInfoEntity(CommonBaseEntity):
     role : 表角色   事实表、维度表
     description 表描述
     '''
-    id:str
-    name:str
-    role:str
-    description:str
-    type: str
-    alias: list[str]
-    table_id: str
-    examples: list[Any]
+    id:str | None = None
+    name:str | None = None
+    role:str | None = None
+    description:str| None = None
+    type: str| None = None
+    alias: list[str]| None = None
+    table_id: str| None = None
+    examples: list[Any] | None = None
