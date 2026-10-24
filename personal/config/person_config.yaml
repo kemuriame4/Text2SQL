@@ -1,0 +1,31 @@
+database_meta:
+  host: 127.0.0.1
+  port: 3306
+  user: root
+  password: [PASSWORD]
+  database: meta
+
+database_dw:
+  host: 127.0.0.1
+  port: 3306
+  user: root
+  password: [PASSWORD]
+  database: dw
+
+qdrant:
+  host: [IP_ADDRESS]
+  port: 6333
+
+embedding:
+  host: [IP_ADDRESS]
+  port: 8081
+  embedding_size: 1024
+
+elastic_search:
+  host: [IP_ADDRESS]
+  port: 9200
+
+# 运行配置
+generate:
+  gemini_model: gemini-3.6-flash
+  GOOGLE_API_KEY: [GOOGLE_API_KEY]

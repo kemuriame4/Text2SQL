@@ -1,0 +1,31 @@
+# 元数据库连接信息
+datebase_meta:
+  host: 111.230.143.239
+  port: 3306
+  user: root
+  password: duoceshi123
+  database: meta_1022
+
+# 业务数据仓库连接信息
+datebase_dw:
+  host: 111.230.143.239
+  port: 3306
+  user: root
+  password: duoceshi123
+  database: dw
+
+# 向量数据库配置信息
+qdrant:
+  host: 111.230.143.239
+  port: 6333
+
+# 词向量模型配置信息
+embedding:
+  host: 111.230.143.239
+  port: 8081
+  embedding_size: 1024
+
+# 全文检索
+elastic_search:
+  host: 111.230.143.239
+  port: 9200
