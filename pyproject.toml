@@ -25,4 +25,5 @@ dependencies = [
     "langgraph>=1.2.14",
     "elasticsearch[async]>=8,<9",
     "langchain-google-genai>=4.4.2",
+    "jieba>=0.42.1",
 ]
