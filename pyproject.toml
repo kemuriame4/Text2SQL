@@ -22,6 +22,7 @@ dependencies = [
     "uvicorn>=0.54.0",
     "sqlalchemy[asyncio]>=2.1.4",
     "asyncmy>=0.2.16",
-    "langgraph[visualization]>=1.2.14",
+    "langgraph>=1.2.14",
     "elasticsearch[async]>=8,<9",
+    "langchain-google-genai>=4.4.2",
 ]

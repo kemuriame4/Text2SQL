@@ -33,6 +33,11 @@ class ESConfig(BaseConfig):
 
 
 @dataclass
+class LLMConfig(BaseConfig):
+    pass
+
+
+@dataclass
 class AppConfig:
     """总配置类，包含所有配置信息。"""
 
@@ -40,13 +45,14 @@ class AppConfig:
     database_dw: DatabaseConfig
     qdrant: QdrantConfig
     embedding: EmbeddingConfig
-    es: ESConfig
+    elastic_search: ESConfig
+    llm: LLMConfig
 
 
 if "--personal" in argv:
-    file_path = Path("personal_config.yaml")
+    file_path = Path(__file__).parent / "person_config.yaml"
 else:
-    file_path = Path("app_config.yaml")
+    file_path = Path(__file__).parent / "app_config.yaml"
 
 context = OmegaConf.load(file_path)
 schema = OmegaConf.structured(AppConfig)

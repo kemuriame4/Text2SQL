@@ -1,5 +1,5 @@
 # 元数据库连接信息
-datebase_meta:
+database_meta:
   host: 111.230.143.239
   port: 3306
   user: root
@@ -7,7 +7,7 @@ datebase_meta:
   database: meta_1022
 
 # 业务数据仓库连接信息
-datebase_dw:
+database_dw:
   host: 111.230.143.239
   port: 3306
   user: root
