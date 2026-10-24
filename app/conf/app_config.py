@@ -30,6 +30,11 @@ class EmbeddingConfig(BaseConfig):
 class ESConfig(BaseConfig):
     pass
 
+@dataclass
+class LLMConfig:
+    base_url:str
+    api_key:str
+    model:str
 
 @dataclass
 class AppConfig:
@@ -38,6 +43,7 @@ class AppConfig:
     qdrant: QdrantConfig
     embedding: EmbeddingConfig
     es: ESConfig
+    llm: LLMConfig
 
 #加载配置文件，将配置文件的信息解析到appConfig对象中
 file_path= Path(__file__).parents[2] / 'conf' /'app_config.yaml'

@@ -24,4 +24,5 @@ dependencies = [
     "asyncmy>=0.2.16",
     "langgraph[visualization]>=1.2.14",
     "elasticsearch[async]>=8,<9",
+    "jieba>=0.42.1",
 ]

@@ -20,3 +20,8 @@ embedding:
 es:
     host: 111.230.143.239
     port: 9200
+llm:
+    base_url: https://api.deepseek.com
+    api_key: sk-269500eac7594701afb39defc21ff87c
+    model: deepseek-flash
+
