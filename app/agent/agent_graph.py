@@ -24,8 +24,11 @@ app = graph.compile()
 async def test():
     # 执行
     init_state = {'question': '给我查询今年各地区第一季度的销售额'}
-    result = await  app.ainvoke(init_state)
-    print(result)
+    context = AgentRuntimeContext()
+    # 设置为流式输出
+    # result = await  app.ainvoke(init_state)
+    async  for chunk in app.astream(input=init_state,context=context,stream_mode='custom'):
+        print(chunk)
 
 if __name__ == '__main__':
     asyncio.run(test())
