@@ -36,4 +36,19 @@ class ColumnEsRepository:
                 operations.append(asdict(value))
             await self.client.bulk(operations=operations)
 
+    async def search(self,keyword:str,score_shreshold:float = 0.5,limit:int = 5):
+        result = await self.client.search(
+            index= self._index_name,
+            query={
+                "match":{
+                    "value": keyword
+                }
+            },
+            size=limit,
+            min_score=score_shreshold,
+        )
+        print('es查询的数据为：',result)
+        # es 返回的固定数据结构，
+        return [ValueInfo(**hit['_source']) for hit in result['hits']['hits']]
+
 
