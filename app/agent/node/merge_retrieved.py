@@ -52,9 +52,9 @@ async  def mergeRetrieval(state:AgentState,runtime:Runtime[AgentRuntimeContext])
         # 判断column_id是否在retrieval_columns_map，如果不在，则查询mysql数据
         if column_id not in retrieval_columns_map:
             column_info = await column_mysql_repository.get_column_info_by_id(column_id)
-            retrieval_columns_map[retrieval_column] = column_info
+            retrieval_columns_map[column_id] = column_info
         # 将取值添加examples字段
-        retrieval_columns_map[retrieval_column].examples.append(column_value)
+        retrieval_columns_map[column_id].examples.append(column_value)
 
     # 按照字段所属的表ID进行分组
     table_to_columns_map :dict[str,list[ColumnInfoEntity]] = {}
