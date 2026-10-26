@@ -28,3 +28,12 @@ class ColumnQdrantRepository:
             # payload 参数为字典，所以需要将payload转asdict(payload)
             batch_points = [PointStruct(id=id,vector=embedding,payload=asdict(payload)) for id,embedding,payload in batch]
             await self._client.upsert(collection_name=self._collection_name,points=batch_points)
+
+    async  def search(self,embedding:list[float],score_threshold:float=0.5,limit:int=5):
+        result = await self._client.query_points(
+            collection_name=self._collection_name,
+            query=embedding,
+            score_threshold=score_threshold,
+            limit=limit
+        )
+        return [ColumnInfoEntity(**point.payload) for point in result.points]
