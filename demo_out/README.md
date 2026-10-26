@@ -45,7 +45,7 @@ mmx text chat --non-interactive --output json \
 
 ```bash
 mmx image generate --non-interactive --quiet \
-  --prompt "Flat vector illustration ... absolutely no text or letters anywhere ..." \
+  --prompts "Flat vector illustration ... absolutely no text or letters anywhere ..." \
   --n 2 --aspect-ratio 16:9 --out-dir demo_out/images --out-prefix text2sql_arch_v2
 ```
 
@@ -71,7 +71,7 @@ mmx speech synthesize --non-interactive --quiet \
 
 ```bash
 mmx video generate --non-interactive --quiet --model MiniMax-H3 \
-  --prompt "数据分析师在屏幕上用自然语言提问 ..." \
+  --prompts "数据分析师在屏幕上用自然语言提问 ..." \
   --duration 6 --ratio 16:9 --download demo_out/video/text2sql_pipeline.mp4
 ```
 
@@ -92,7 +92,7 @@ mmx search query --non-interactive --quiet --output json --q "text2sql 元数据
 ```bash
 mmx vision describe --non-interactive --quiet --output json \
   --image demo_out/images/text2sql_arch_v2_001.jpg \
-  --prompt "这张图里有哪些组件？数据流向是怎样的？"
+  --prompts "这张图里有哪些组件？数据流向是怎样的？"
 ```
 
 产物：`vision/describe_arch.json`。本地图片自动 base64 编码上传；也可以用 `--file-id` 跳过编码。
