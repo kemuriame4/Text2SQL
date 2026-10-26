@@ -2,27 +2,27 @@ database_meta:
   host: 127.0.0.1
   port: 3306
   user: root
-  password: [PASSWORD]
+  password: duoceshi123
   database: meta
 
 database_dw:
   host: 127.0.0.1
   port: 3306
   user: root
-  password: [PASSWORD]
+  password: duoceshi123
   database: dw
 
 qdrant:
-  host: [IP_ADDRESS]
+  host: 127.0.0.1
   port: 6333
 
 embedding:
-  host: [IP_ADDRESS]
+  host: 127.0.0.1
   port: 8081
   embedding_size: 1024
 
 elastic_search:
-  host: [IP_ADDRESS]
+  host: 127.0.0.1
   port: 9200
 
 # 运行配置

@@ -50,9 +50,9 @@ class AppConfig:
 
 
 if "--personal" in argv:
-    file_path = Path(__file__).parent / "person_config.yaml"
+    file_path = "person_config.yaml"
 else:
-    file_path = Path(__file__).parent / "app_config.yaml"
+    file_path = "app_config.yaml"
 
 context = OmegaConf.load(file_path)
 schema = OmegaConf.structured(AppConfig)

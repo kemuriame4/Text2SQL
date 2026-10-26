@@ -1,3 +1,4 @@
+from omegaconf import OmegaConf
 from dataclasses import dataclass
 
 
@@ -30,3 +31,9 @@ class MetricConfig:
 class MetaConfig:
     tables: list[TableConfig]
     metrics: list[MetricConfig]
+
+
+context = OmegaConf.load("meta_config.yaml")
+schema = OmegaConf.structured(MetaConfig)
+
+meta_config = OmegaConf.to_object(OmegaConf.merge(schema, context))
