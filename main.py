@@ -1,5 +1,6 @@
 # This is a sample Python script.
 import uuid
+from datetime import datetime
 
 
 # Press Shift+F10 to execute it or replace it with your code.
@@ -13,9 +14,11 @@ def print_hi(name):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, "dim_region.region_id_0"))
-    print(point_id)
-    point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, "dim_region.region_id_1"))
-    print(point_id)
+    # point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, "dim_region.region_id_0"))
+    # print(point_id)
+    # point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, "dim_region.region_id_1"))
+    # print(point_id)
+    current = datetime.now()
+    print(current.strftime('%Y-%m-%d'))
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

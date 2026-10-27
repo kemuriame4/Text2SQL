@@ -47,7 +47,7 @@ class ColumnEsRepository:
             size=limit,
             min_score=score_shreshold,
         )
-        print('es查询的数据为：',result)
+        # print('es查询的数据为：',result)
         # es 返回的固定数据结构，
         return [ValueInfo(**hit['_source']) for hit in result['hits']['hits']]
 

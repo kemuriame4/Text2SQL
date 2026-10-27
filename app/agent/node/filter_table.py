@@ -13,7 +13,6 @@ from app.utils.loader_prompt_util import load_prompt_by_path
 async def filterTable(state:AgentState,runtime: Runtime[AgentRuntimeContext]):
 
     writer = runtime.stream_writer
-    writer('这是流式输出的第一个内容')
     table_infos = state["table_infos"]
     question  = state['question']
 
@@ -43,5 +42,7 @@ async def filterTable(state:AgentState,runtime: Runtime[AgentRuntimeContext]):
             for column_info in table_info['columns'][:]:
                 if column_info['name'] not in selected_column:
                     table_info['columns'].remove(column_info)
+
+    print('过滤后的表数据：',table_infos)
 
     return {'table_infos':table_infos}

@@ -39,17 +39,20 @@ async  def retrievalValue(state:AgentState,runtime:Runtime[AgentRuntimeContext])
     for keyword in all_keywords:
         # 关键词检索
         values: list[ValueInfo] = await column_es_repository.search(keyword)
+        # print('查询的关键字为',keyword)
+        # print('查询的关键字结果为：',values)
         # 去重存储
         for value in values:
             value_id = value.id
             if value_id not in retrieval_value_map:
                 retrieval_value_map[value_id] = value
-        #将字段转换为列表
-        retrieval_values = list(retrieval_value_map.values())
-        writer = runtime.stream_writer
-        writer(all_keywords)
-        writer(retrieval_values)
-        return {'retrieval_values':retrieval_values, }
+    #将字段转换为列表
+    retrieval_values = list(retrieval_value_map.values())
+    # writer = runtime.stream_writer
+    # writer(all_keywords)
+    # writer(retrieval_values)
+    print('取值召回数据：',retrieval_values)
+    return {'retrieval_values':retrieval_values, }
 
 
 
