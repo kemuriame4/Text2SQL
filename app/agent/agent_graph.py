@@ -6,7 +6,10 @@ from langgraph.graph import StateGraph
 from app.agent.agent_runtime_context import AgentRuntimeContext
 from app.agent.agent_state import AgentState
 from app.agent.node.column_call import retrievalColumns
+from app.agent.node.execute_sql import executeSQL
+from app.agent.node.filter_metric import filterMetric
 from app.agent.node.filter_table import filterTable
+from app.agent.node.generate_sql import generateSQL
 from app.agent.node.keywords_ext import keywordsExt
 from app.agent.node.merge_retrieved import mergeRetrieval
 from app.agent.node.metric_call import retrievalMetric
@@ -18,6 +21,7 @@ from app.client.mysql_client import CustomMySqlClient
 from app.conf.app_config import  appConfig
 from app.repository.es.column_es_repository import ColumnEsRepository
 from app.repository.mysql.column_info_mysql_repository import ColumnInfoMySqlRepository
+from app.repository.mysql.dw.dw_mysql_repostory import DwMysqlRepostory
 from app.repository.mysql.table_info_mysql_repository import TableInfoMySqlRepository
 from app.repository.qdrant import column_qdrant_repository, metric_qdrant_repository
 from app.repository.qdrant.column_qdrant_repository import ColumnQdrantRepository
@@ -31,6 +35,9 @@ graph.add_node('retrievalMetric',retrievalMetric)
 graph.add_node('retrievalValue',retrievalValue)
 graph.add_node('mergeRetrieval',mergeRetrieval)
 graph.add_node('filterTable',filterTable)
+graph.add_node('filterMetric',filterMetric)
+graph.add_node('generateSQL',generateSQL)
+graph.add_node('executeSQL',executeSQL)
 # 添加边
 # 并行处理
 graph.add_edge('keywords_ext','retrievalColumns')
@@ -41,7 +48,13 @@ graph.add_edge('keywords_ext','retrievalValue')
 graph.add_edge('retrievalColumns','mergeRetrieval')
 graph.add_edge('retrievalMetric','mergeRetrieval')
 graph.add_edge('retrievalValue','mergeRetrieval')
+
 graph.add_edge('mergeRetrieval','filterTable')
+graph.add_edge('mergeRetrieval','filterMetric')
+
+graph.add_edge('filterMetric','generateSQL')
+graph.add_edge('filterTable','generateSQL')
+graph.add_edge('generateSQL','executeSQL')
 
 
 # 设置入口
@@ -49,13 +62,9 @@ graph.set_entry_point('keywords_ext')
 
 # 编译
 app = graph.compile()
-
-
-
-
 async def test():
     # 执行
-    init_state = {'question': '给我查询今年各地区第一季度的销售额'}
+    init_state = {'question': '给我查询去年各地区第一季度的销售额'}
     # 实例化向量模型客户端
     embedding_client = CustomEmbeddingClient(appConfig.embedding).get_client()
     # 实例化ColumnQdrantRepository对象
@@ -72,9 +81,19 @@ async def test():
     meta_mysql_client = CustomMySqlClient(appConfig.db_meta)
     meta_mysql_client.get_session_factory()
     sessionFactory = meta_mysql_client.sessionFactory
-    async  with sessionFactory() as meta_session:
+
+    # 初始化数据仓库连接对象
+    dw_mysql_client = CustomMySqlClient(appConfig.db_dw)
+    #  创建会话工厂
+    dw_mysql_client.get_session_factory()
+    # 获取会话工厂对象
+    dw_session_factory = dw_mysql_client.sessionFactory
+
+    async  with (sessionFactory() as meta_session,dw_session_factory() as dw_session):
         column_mysql_repository = ColumnInfoMySqlRepository(meta_session)
         table_mysql_repository = TableInfoMySqlRepository(meta_session)
+
+        dw_mysql_repository = DwMysqlRepostory(dw_session)
 
         # 将embedding客户和column_qdrant_repository存储到运行时上下文中
         context = AgentRuntimeContext(
@@ -84,6 +103,7 @@ async def test():
             column_es_repository=column_es_repository,
             column_mysql_repository=column_mysql_repository,
             table_mysql_repository=table_mysql_repository,
+            dw_mysql_repository = dw_mysql_repository,
         )
         # 设置为流式输出
         # result = await  app.ainvoke(init_state)

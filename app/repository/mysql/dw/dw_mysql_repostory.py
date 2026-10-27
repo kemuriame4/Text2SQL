@@ -16,3 +16,7 @@ class DwMysqlRepostory:
         sql = f'select distinct {column_name} from {table_name} limit {limit} '
         result = await self.session.execute(text(sql))
         return result.scalars().fetchall()
+
+    async  def execute_sql(self,sql:str):
+        result = await self.session.execute(text(sql))
+        return [dict(row) for row in result.mappings().fetchall()]

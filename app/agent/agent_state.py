@@ -37,3 +37,7 @@ class AgentState(TypedDict):
 
     table_infos: list[TableInfoState]
     metric_infos: list[MetricInfoState]
+
+    generate_sql: str
+
+    result : list

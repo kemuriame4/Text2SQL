@@ -48,11 +48,11 @@ async  def retrievalColumns(state:AgentState,runtime:Runtime[AgentRuntimeContext
             column_id = payload.id
             if column_id not in retrieval_columns_map:
                 retrieval_columns_map[column_id] = payload
-        #将字段转换为列表
-        retrieval_columns = list(retrieval_columns_map.values())
-        writer = runtime.stream_writer
-        writer(retrieval_columns)
-        return {'retrieval_columns':retrieval_columns,}
+    #将字段转换为列表
+    retrieval_columns = list(retrieval_columns_map.values())
+
+    print('字段召回数据：', retrieval_columns)
+    return {'retrieval_columns':retrieval_columns,}
 
 
 

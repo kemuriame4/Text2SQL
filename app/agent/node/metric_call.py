@@ -49,11 +49,12 @@ async  def retrievalMetric(state:AgentState,runtime:Runtime[AgentRuntimeContext]
             metric_id = payload.id
             if metric_id not in retrieval_metrics_map:
                 retrieval_metrics_map[metric_id] = payload
-        #将字段转换为列表
-        retrieval_metrics = list(retrieval_metrics_map.values())
-        writer = runtime.stream_writer
-        writer(retrieval_metrics)
-        return {'retrieval_metrics':retrieval_metrics, }
+    #将字段转换为列表
+    retrieval_metrics = list(retrieval_metrics_map.values())
+    # writer = runtime.stream_writer
+    # writer(retrieval_metrics)
+    print('指标召回数据：', retrieval_metrics)
+    return {'retrieval_metrics':retrieval_metrics, }
 
 
 
