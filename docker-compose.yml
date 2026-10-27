@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # ==========================================
@@ -26,12 +26,12 @@ services:
   # 2. 本地 Qdrant 向量数据库服务
   # ==========================================
   qdrant:
-    image: qdrant/qdrant:v1.12.0
+    image: qdrant/qdrant:v1.20.0
     container_name: text2sql-qdrant
     restart: always
     ports:
-      - "6333:6333"   # REST API & Web Dashboard (http://localhost:6333/dashboard)
-      - "6334:6334"   # gRPC 端口
+      - "6333:6333" # REST API & Web Dashboard (http://localhost:6333/dashboard)
+      - "6334:6334" # gRPC 端口
     volumes:
       - qdrant_data:/qdrant/storage
     environment:
@@ -45,12 +45,12 @@ services:
     container_name: text2sql-elasticsearch
     restart: always
     ports:
-      - "9200:9200"   # HTTP REST 接口
+      - "9200:9200" # HTTP REST 接口
       - "9300:9300"
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=false    # 开发环境关闭SSL/密码认证，方便本地无鉴权直连
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m  # 限制JVM内存，防止吃死开发机内存
+      - xpack.security.enabled=false # 开发环境关闭SSL/密码认证，方便本地无鉴权直连
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m # 限制JVM内存，防止吃死开发机内存
     volumes:
       - es_data:/usr/share/elasticsearch/data
       - es_plugins:/usr/share/elasticsearch/plugins

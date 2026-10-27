@@ -33,8 +33,9 @@ class ESConfig(BaseConfig):
 
 
 @dataclass
-class LLMConfig(BaseConfig):
-    pass
+class LLMConfig:
+    gemini_model: str
+    GOOGLE_API_KEY: str
 
 
 @dataclass
@@ -46,13 +47,13 @@ class AppConfig:
     qdrant: QdrantConfig
     embedding: EmbeddingConfig
     elastic_search: ESConfig
-    llm: LLMConfig
+    generate: LLMConfig
 
 
-if "--personal" in argv:
-    file_path = "person_config.yaml"
-else:
-    file_path = "app_config.yaml"
+# if "--personal" in argv:
+#     file_path = Path(__file__).parent / "person_config.yaml"
+# else:
+file_path = Path(__file__).parent / "person_config.yaml"
 
 context = OmegaConf.load(file_path)
 schema = OmegaConf.structured(AppConfig)

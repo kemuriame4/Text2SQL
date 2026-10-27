@@ -9,7 +9,7 @@ class CustomMysqlClient:
 
     def _get_url(self):
         # 构造数据库连接URL
-        database_login = f"{self._config.username}:{self._config.password}"
+        database_login = f"{self._config.user}:{self._config.password}"
         database_address = f"{self._config.host}:{self._config.port}"
         database_name = f"{self._config.database}"
         return f"mysql+asyncmy://{database_login}@{database_address}/{database_name}"

@@ -272,14 +272,14 @@ class MetaService:
             self._column_qdrant_repository = ColumnQdrantRepository(qdrant_client.client,appConfig.embedding.embedding_size)
             self._metric_qdrant_repository = MetricQdrantRepository(qdrant_client.client,appConfig.embedding.embedding_size)
             self._column_es_repository = ColumnEsRepository(self._es_client)
-            # if meta_config is not None and meta_config.tables is not None:
-            #     # 将tables数据解析并且写入到mysql数据库中
-            #     columnInfos = await  self._save_tables_to_mysql(meta_config.tables)
-            #     # print('columnsInfo数据为：',columnInfos)
-            #     # 将字段信息写入到qdrant
-            #     # await  self._save_columns_to_qdrant(columnInfos)
+            if meta_config is not None and meta_config.tables is not None:
+                # 将tables数据解析并且写入到mysql数据库中
+                columnInfos = await  self._save_tables_to_mysql(meta_config.tables)
+                # print('columnsInfo数据为：',columnInfos)
+                # 将字段信息写入到qdrant
+                # await  self._save_columns_to_qdrant(columnInfos)
             #     # 将字段信息写入es中
-            #     await  self._save_columns_to_es(columnInfos,meta_config.tables)
+                await  self._save_columns_to_es(columnInfos,meta_config.tables)
 
             # 指标信息写入到 mysql 、 qdrant
             if meta_config is not None and meta_config.metrics is not None:

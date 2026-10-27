@@ -1,3 +1,4 @@
+from personal.utils.config_loader import load_config
 import uuid
 from personal.repository.ElasticSearch.column_ElasticSearch_repository import (
     ColumnElasticSearchRepository,
@@ -18,7 +19,6 @@ from personal.client.qdrant_client import CustomQdrantClient
 from personal.client.mysql_client import CustomMysqlClient
 from personal.config.app_config import app_config
 from personal.config.meta_config import (
-    meta_config,
     MetaConfig,
     TableConfig,
     MetricConfig,
@@ -29,9 +29,11 @@ from personal.entity.info_entity import TableInfoEntity, MetricInfoEntity
 
 class MetaService:
     def __init__(self):
-        self.meta_config: MetaConfig = meta_config
+        pass
 
-    async def build(self):
+    async def build(self, file_path: str):
+        meta_config: MetaConfig = load_config(file_path, MetaConfig)
+
         meta_MySQL_client = CustomMysqlClient(app_config.database_meta)
         dw_MySQL_client = CustomMysqlClient(app_config.database_dw)
         meta_session_factory = meta_MySQL_client.get_session_factory()
@@ -61,10 +63,10 @@ class MetaService:
 
             self._dw_mysql_repository = DwMySQLRepository(dw_session)
             self._column_qdrant_repository = ColumnQdrantRepository(
-                qdrant_client.client.app_config.embedding.embedding_size
+                qdrant_client.client, app_config.embedding.embedding_size
             )
             self._metric_qdrant_repository = MetricQdrantRepository(
-                qdrant_client.client.app_config.embedding.embedding_size
+                qdrant_client.client, app_config.embedding.embedding_size
             )
             self._cloumn_es_repository = ColumnElasticSearchRepository(
                 self._es_client.client
