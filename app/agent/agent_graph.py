@@ -6,6 +6,7 @@ from langgraph.graph import StateGraph
 from app.agent.agent_runtime_context import AgentRuntimeContext
 from app.agent.agent_state import AgentState
 from app.agent.node.column_call import retrievalColumns
+from app.agent.node.filter_table import filterTable
 from app.agent.node.keywords_ext import keywordsExt
 from app.agent.node.merge_retrieved import mergeRetrieval
 from app.agent.node.metric_call import retrievalMetric
@@ -29,6 +30,7 @@ graph.add_node('retrievalColumns',retrievalColumns)
 graph.add_node('retrievalMetric',retrievalMetric)
 graph.add_node('retrievalValue',retrievalValue)
 graph.add_node('mergeRetrieval',mergeRetrieval)
+graph.add_node('filterTable',filterTable)
 # 添加边
 # 并行处理
 graph.add_edge('keywords_ext','retrievalColumns')
@@ -39,6 +41,8 @@ graph.add_edge('keywords_ext','retrievalValue')
 graph.add_edge('retrievalColumns','mergeRetrieval')
 graph.add_edge('retrievalMetric','mergeRetrieval')
 graph.add_edge('retrievalValue','mergeRetrieval')
+graph.add_edge('mergeRetrieval','filterTable')
+
 
 # 设置入口
 graph.set_entry_point('keywords_ext')
