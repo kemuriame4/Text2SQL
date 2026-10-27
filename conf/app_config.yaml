@@ -22,6 +22,6 @@ es:
     port: 9200
 llm:
     base_url: https://api.deepseek.com
-    api_key: sk-269500eac7594701afb39defc21ff87c
+    api_key: sk-2534748725374f68bfe6b1d8bfb84fb8
     model: deepseek-flash
 
