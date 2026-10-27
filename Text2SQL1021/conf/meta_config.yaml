@@ -1,0 +1,219 @@
+# ============================================================================
+# 【文件说明】conf/meta_config.yaml —— 元数据配置（人工写的"数据字典"）
+# 作用：告诉系统数仓里有哪些表、每张表有哪些字段、字段是什么角色、有哪些指标。
+#       这些描述会被灌进 MySQL/ES/向量库，供"自然语言找表、找字段、找指标"使用。
+# 谁读：app/service/meta_service.py 调 load_config(..., MetaConfig) 加载，
+#       对应的模板类是 app/conf/meta_config.py。
+# 结构：tables（表清单）→ columns（字段清单）；metrics（指标清单）。
+# 【注意】YAML（一种专门写配置文件的格式，靠缩进分层，比代码好改；同一层级缩进必须一致，
+#         只能用空格，不能用 Tab）。
+# ============================================================================
+tables:  # 所有表的清单（列表，每个 "-" 开头的一项就是一张表）
+  # ---------------- 第 1 张：dim_region（地区维度表，4 个字段）----------------
+  - name: dim_region  # 表名：数仓里的真实表名
+    role: dim  # 表角色：dim=维度表（记录"东西的属性"，如地区/客户/商品）；fact=事实表（记录一笔笔业务发生）
+    description: 地区维度表，用于描述订单发生的地理区域信息。  # 表说明，喂给大模型帮它理解这张表
+    columns:  # 这张表的字段清单
+      # region_id：地区主键，只用于关联，不需要按值搜，所以不同步
+      - name: region_id  # 字段名：必须与数仓列名一致
+        role: primary_key  # 角色：primary_key 主键（唯一标识一行）
+        description: 地区唯一标识。  # 中文说明，给大模型看
+        alias: [地区ID, 区域ID]  # 别名：用户可能这样叫，检索时都算命中
+        sync: false  # sync（同步标记）：false=这个字段的"值"不进 ES 做全文检索（ID 一般不需要）
+
+      # province：省份是常见筛选条件，用户会说"广东"，所以要同步
+      - name: province  # 字段名：省份
+        role: dimension  # 角色：dimension 维度（描述性属性，用来筛选/分组）
+        description: 订单所属的省份名称。  # 中文说明
+        alias: [省份, 省, 所在省份]  # 别名/同义词
+        sync: true  # true=字段值会同步进 ES，用户口中的具体省份能被搜到
+
+      # region_name：大区名（华东/华南），常被拿来筛选，同步
+      - name: region_name  # 字段名：大区名
+        role: dimension  # 维度
+        description: 订单所属的大区名称，如华东、华南等。  # 中文说明
+        alias: [地区, 区域, 大区]  # 别名/同义词
+        sync: true  # 同步进 ES
+
+      # country：国家名，同步
+      - name: country  # 字段名：国家
+        role: dimension  # 维度
+        description: 地区所属国家名称。  # 中文说明
+        alias: [国家, 国家名称]  # 别名/同义词
+        sync: true  # 同步进 ES
+
+  # ---------------- 第 2 张：dim_customer（客户维度表，4 个字段）----------------
+  - name: dim_customer  # 表名
+    role: dim  # 维度表
+    description: 客户维度表，描述下单客户的基本属性。  # 表说明
+    columns:  # 字段清单
+      # customer_id：客户主键，只做关联，不同步
+      - name: customer_id  # 字段名：客户 ID
+        role: primary_key  # 主键：唯一标识一个客户
+        description: 客户唯一标识。  # 中文说明
+        alias: [客户ID, 用户ID]  # 别名/同义词
+        sync: false  # 不同步进 ES
+
+      # customer_name：客户名称，用户可能直接说人名/公司名，同步
+      - name: customer_name  # 字段名：客户名称
+        role: dimension  # 维度
+        description: 客户名称。  # 中文说明
+        alias: [客户名称, 用户名称]  # 别名/同义词
+        sync: true  # 同步进 ES，支持按名字搜
+
+      # gender：性别，同步
+      - name: gender  # 字段名：性别
+        role: dimension  # 维度
+        description: 客户性别。  # 中文说明
+        alias: [性别]  # 别名/同义词
+        sync: true  # 同步进 ES
+
+      # member_level：会员等级，同步
+      - name: member_level  # 字段名：会员等级
+        role: dimension  # 维度
+        description: 客户会员等级。  # 中文说明
+        alias: [会员等级, 用户等级]  # 别名/同义词
+        sync: true  # 同步进 ES
+
+  # ---------------- 第 3 张：dim_product（商品维度表，4 个字段）----------------
+  - name: dim_product  # 表名
+    role: dim  # 维度表
+    description: 商品维度表，描述商品的基本属性信息。  # 表说明
+    columns:  # 字段清单
+      # product_id：商品主键，只做关联，不同步
+      - name: product_id  # 字段名：商品 ID
+        role: primary_key  # 主键：唯一标识一个商品
+        description: 商品唯一标识。  # 中文说明
+        alias: [商品ID, 产品ID]  # 别名/同义词
+        sync: false  # 不同步进 ES
+
+      # product_name：商品名称，用户会说具体商品，同步
+      - name: product_name  # 字段名：商品名称
+        role: dimension  # 维度
+        description: 商品名称。  # 中文说明
+        alias: [商品名称, 产品名称]  # 别名/同义词
+        sync: true  # 同步进 ES
+
+      # category：品类，常用来筛选，同步
+      - name: category  # 字段名：品类
+        role: dimension  # 维度
+        description: 商品所属品类。  # 中文说明
+        alias: [商品类别, 品类, 分类]  # 别名/同义词
+        sync: true  # 同步进 ES
+
+      # brand：品牌，常用来筛选，同步
+      - name: brand  # 字段名：品牌
+        role: dimension  # 维度
+        description: 商品品牌名称。  # 中文说明
+        alias: [品牌, 品牌名称]  # 别名/同义词
+        sync: true  # 同步进 ES
+
+  # ---------------- 第 4 张：dim_date（时间维度表，5 个字段）----------------
+  - name: dim_date  # 表名
+    role: dim  # 维度表
+    description: 时间维度表，用于多时间粒度分析。  # 表说明（年/季/月/日多粒度）
+    columns:  # 字段清单
+      # date_id：日期主键（yyyyMMdd），用于关联，不同步
+      - name: date_id  # 字段名：日期 ID
+        role: primary_key  # 主键：唯一标识一天
+        description: 日期唯一标识，格式 yyyyMMdd。  # 中文说明（如 20251022）
+        alias: [日期ID, 日期]  # 别名/同义词
+        sync: false  # 不同步进 ES
+
+      # year：年份，用 SQL 条件过滤即可，不同步
+      - name: year  # 字段名：年份
+        role: dimension  # 维度
+        description: 年份。  # 中文说明
+        alias: [年, 年份]  # 别名/同义词
+        sync: false  # 不同步进 ES（年份是数字，按范围过滤更合适）
+
+      # quarter：季度，用户可能说"第一季度"，同步
+      - name: quarter  # 字段名：季度
+        role: dimension  # 维度
+        description: 季度。  # 中文说明
+        alias: [季度]  # 别名/同义词
+        sync: true  # 同步进 ES
+
+      # month：月份，用 SQL 条件过滤即可，不同步
+      - name: month  # 字段名：月份
+        role: dimension  # 维度
+        description: 月份。  # 中文说明
+        alias: [月, 月份]  # 别名/同义词
+        sync: false  # 不同步进 ES
+
+      # day：日，用 SQL 条件过滤即可，不同步
+      - name: day  # 字段名：日
+        role: dimension  # 维度
+        description: 日。  # 中文说明
+        alias: [日, 天]  # 别名/同义词
+        sync: false  # 不同步进 ES
+
+  # ---------------- 第 5 张：fact_order（订单事实表，7 个字段）----------------
+  - name: fact_order  # 表名
+    role: fact  # 事实表：记录"一笔笔业务发生"，通常可以按维度汇总计算
+    description: 订单事实表，记录订单数量和金额等核心指标。  # 表说明
+    columns:  # 字段清单
+      # order_id：订单主键，不同步
+      - name: order_id  # 字段名：订单 ID
+        role: primary_key  # 主键：唯一标识一笔订单
+        description: 订单唯一标识。  # 中文说明
+        alias: [订单ID]  # 别名/同义词
+        sync: false  # 不同步进 ES
+
+      # customer_id：外键，指向 dim_customer.customer_id，只做关联，不同步
+      - name: customer_id  # 字段名：客户 ID
+        role: foreign_key  # 外键（关联另一张表主键的列，用来把两张表连起来）
+        description: 关联客户维度的外键。  # 中文说明
+        alias: [客户ID, 用户ID]  # 别名/同义词
+        sync: false  # 不同步进 ES
+
+      # product_id：外键，指向 dim_product.product_id
+      - name: product_id  # 字段名：商品 ID
+        role: foreign_key  # 外键，关联商品维度
+        description: 关联商品维度的外键。  # 中文说明
+        alias: [商品ID, 产品ID]  # 别名/同义词
+        sync: false  # 不同步进 ES
+
+      # date_id：外键，指向 dim_date.date_id
+      - name: date_id  # 字段名：日期 ID
+        role: foreign_key  # 外键，关联时间维度
+        description: 关联时间维度的外键。  # 中文说明
+        alias: [日期, 下单日期]  # 别名/同义词
+        sync: false  # 不同步进 ES
+
+      # region_id：外键，指向 dim_region.region_id
+      - name: region_id  # 字段名：地区 ID
+        role: foreign_key  # 外键，关联地区维度
+        description: 关联地区维度的外键。  # 中文说明
+        alias: [地区ID, 区域ID]  # 别名/同义词
+        sync: false  # 不同步进 ES
+
+      # order_quantity：度量（可参与 SUM/AVG 等计算），数值列不同步
+      - name: order_quantity  # 字段名：购买数量
+        role: measure  # 度量（measurable）：可以被 SUM/AVG/MAX 等聚合函数计算的数值列
+        description: 订单中商品的购买数量。  # 中文说明
+        alias: [销量, 购买数量, 件数]  # 别名/同义词
+        sync: false  # 不同步进 ES
+
+      # order_amount：度量（订单金额），GMV 就是它求和
+      - name: order_amount  # 字段名：订单金额
+        role: measure  # 度量：金额，可求和/平均
+        description: 订单金额。  # 中文说明
+        alias: [销售额, 订单金额, 收入]  # 别名/同义词
+        sync: false  # 不同步进 ES
+
+metrics:  # 指标清单（指标 = 业务上常算的一个数，如 GMV；和"表"不同，指标是算法）
+  # ---------------- 指标 1：GMV（成交总额）----------------
+  - name: GMV  # 指标名（代码和结果里用的标识）
+    description: 全称Gross Merchandise Value，表示所有订单的成交金额总和。  # 指标说明
+    relevant_columns:  # 算这个指标要用到哪些字段（写法：表名.字段名）
+      - fact_order.order_amount  # 用订单事实表的"订单金额"字段求和
+    alias: [成交总额, 订单总额]  # 别名：用户口语可能这样说
+
+  # ---------------- 指标 2：AOV（平均订单金额）----------------
+  - name: AOV  # 指标名
+    description: 全称Average Order Value，表示所有订单的成交金额平均值。  # 指标说明
+    relevant_columns:  # 算这个指标要用到的字段
+      # 【注意】AOV 算的是"金额平均值"，这里却写了 order_quantity（购买数量），疑似笔误，应为 order_amount
+      - fact_order.order_quantity
+    alias: [平均单价, 平均订单金额]  # 别名：用户口语可能这样说
