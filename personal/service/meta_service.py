@@ -15,6 +15,7 @@ from personal.repository.MySQL.info_MySQL_repository import (
 )
 from personal.repository.MySQL.column_MySQL_repository import ColumnInfoMySQLRepository
 from personal.client.embedding_client import CustomEmbeddingClient
+from personal.client.es_client import CustomESClient
 from personal.client.qdrant_client import CustomQdrantClient
 from personal.client.mysql_client import CustomMysqlClient
 from personal.config.app_config import app_config
@@ -23,8 +24,9 @@ from personal.config.meta_config import (
     TableConfig,
     MetricConfig,
 )
-from personal.entity.column_entity import ColumnInfoEntity
+from personal.entity.column_entity import ColumnInfoEntity, ColumnMetricEntity
 from personal.entity.info_entity import TableInfoEntity, MetricInfoEntity
+from personal.entity.base_entity import ValueInfo
 
 
 class MetaService:
@@ -32,36 +34,40 @@ class MetaService:
         pass
 
     async def build(self, file_path: str):
+        """
+        :param file_path: config_yaml_path or meta_config_json_path
+        :return: None
+        """
         meta_config: MetaConfig = load_config(file_path, MetaConfig)
 
         meta_MySQL_client = CustomMysqlClient(app_config.database_meta)
         dw_MySQL_client = CustomMysqlClient(app_config.database_dw)
-        meta_session_factory = meta_MySQL_client.get_session_factory()
-        dw_session_factory = dw_MySQL_client.get_session_factory()
+
+        meta_MySQL_client.get_session_factory()
+        dw_MySQL_client.get_session_factory()
 
         qdrant_client = CustomQdrantClient(app_config.qdrant)
         qdrant_client.get_client()
 
-        self._embedding_client = CustomEmbeddingClient(app_config.embedding)
-        self._embedding_client.get_client()
+        self._embedding_client = CustomEmbeddingClient(
+            app_config.embedding
+        ).get_client()
 
-        self._es_client = CustomEmbeddingClient(app_config.elastic_search)
+        self._es_client = CustomESClient(app_config.elastic_search)
         self._es_client.get_client()
 
         async with (
             meta_MySQL_client.sessionFactory() as meta_session,
             dw_MySQL_client.sessionFactory() as dw_session,
         ):
-            self._conlumn_info_MySQL_repository = ColumnInfoMySQLRepository(
-                meta_session
-            )
+            self._column_info_MySQL_repository = ColumnInfoMySQLRepository(meta_session)
             self._table_info_MySQL_repository = TableInfoMySQLRepository(meta_session)
             self._column_metric_MySQL_repository = ColumnMetricMySQLRepository(
                 meta_session
             )
             self._metric_info_MySQL_repository = MetricMySQLRepository(meta_session)
 
-            self._dw_mysql_repository = DwMySQLRepository(dw_session)
+            self._dw_MySQL_repository = DwMySQLRepository(dw_session)
             self._column_qdrant_repository = ColumnQdrantRepository(
                 qdrant_client.client, app_config.embedding.embedding_size
             )
@@ -72,12 +78,18 @@ class MetaService:
                 self._es_client.client
             )
 
-        if meta_config is not None and meta_config.metrics is not None:
-            metric_infos = await self._save_metrics_to_MySQL(meta_config.metrics)
-            await self._save_metrics_to_Qrant(metric_infos)
+            if meta_config is not None and meta_config.tables is not None:
+                conlumn_infos = await self._save_tables_to_MySQL(meta_config.tables)
+                await self._save_columns_to_elastic_search(
+                    conlumn_infos, meta_config.tables
+                )
 
-    async def _save_tables_to_mysql(self, tables: list[TableConfig]):
-        async with self._table_info_mysql_repository.session.begin():
+            if meta_config is not None and meta_config.metrics is not None:
+                metric_infos = await self._save_metrics_to_MySQL(meta_config.metrics)
+                await self._save_metrics_to_Qrant(metric_infos)
+
+    async def _save_tables_to_MySQL(self, tables: list[TableConfig]):
+        async with self._table_info_MySQL_repository.session.begin():
             table_infos = []
             update_table_infos = []
             column_infos = []
@@ -91,7 +103,7 @@ class MetaService:
                 )
 
                 row_table = (
-                    await self._table_info_mysql_repository.get_table_info_by_id(
+                    await self._table_info_MySQL_repository.get_table_info_by_id(
                         table_info.id
                     )
                 )
@@ -100,15 +112,14 @@ class MetaService:
                 else:
                     table_infos.append(table_info)
 
-                types = await self._dw_mysql_repository.get_column_type_by_name(
+                types = await self._dw_MySQL_repository.get_column_type_by_name(
                     table.name
                 )
 
                 for column in table.columns:
-                    examples = await self._dw_mysql_repository.get_column_values(
+                    examples = await self._dw_MySQL_repository.get_column_values(
                         table.name, column.name
                     )
-
                     column_info = ColumnInfoEntity(
                         id=f"{table.name}.{column.name}",
                         name=column.name,
@@ -121,7 +132,7 @@ class MetaService:
                     )
 
                     row_column = (
-                        await self._column_info_mysql_repository.get_column_info_by_id(
+                        await self._column_info_MySQL_repository.get_column_info_by_id(
                             column_info.id
                         )
                     )
@@ -130,24 +141,23 @@ class MetaService:
                     else:
                         column_infos.append(column_info)
 
-                # if len(update_table_infos) > 0:
-                #     await self._table_info_mysql_repository.batch_update_table_infos(
-                #         update_table_infos
-                #     )
-                # if len(table_infos) > 0:
-                #     await self._table_info_mysql_repository.batch_add_table_infos(
-                #         table_infos
-                #     )
-                # if len(update_column_infos) > 0:
-                #     await self._column_info_mysql_repository.batch_update_column_infos(
-                #         update_column_infos
-                #     )
-                # if len(column_infos) > 0:
-                #     await self._column_info_mysql_repository.batch_add_column_infos(
-                #         column_infos
-                #     )
-
-            return column_infos + update_column_infos
+        # if len(update_table_infos) > 0:
+        #     await self._table_info_MySQL_repository.batch_update_table_infos(
+        #         update_table_infos
+        #     )
+        # if len(table_infos) > 0:
+        #     await self._table_info_MySQL_repository.batch_add_table_infos(
+        #         table_infos
+        #     )
+        # if len(update_column_infos) > 0:
+        #     await self._column_info_MySQL_repository.batch_update_column_infos(
+        #         update_column_infos
+        #     )
+        # if len(column_infos) > 0:
+        #     await self._column_info_MySQL_repository.batch_add_column_infos(
+        #         column_infos
+        #     )
+        return column_infos + update_column_infos
 
     async def _save_columns_to_Qrant(self, column_infos: list[ColumnInfoEntity]):
         await self._column_qdrant_repository.create_collection()
@@ -189,25 +199,121 @@ class MetaService:
                     }
                 )
 
-            embedding_texts = [point["embedding_text"] for point in points]
-            ids = [point["id"] for point in points]
-            payloads = [point["payload"] for point in points]
-            embeddings = []
+        embedding_texts = [point["embedding_text"] for point in points]
+        ids = [point["id"] for point in points]
+        payloads = [point["payload"] for point in points]
+        embeddings = []
 
-            batch_embedding = 20
-            for i in range(0, len(embedding_texts), batch_embedding):
-                batch_embedding_texts = embedding_texts[i : i + batch_embedding]
-                batch_embeddings = await self._embedding_client.aembed_documents(
-                    batch_embedding_texts
-                )
-                embeddings.extend(batch_embeddings)
-
-            await self._column_qdrant_repository.insert_and_update(
-                ids, embeddings, payloads
+        batch_embedding = 20
+        for i in range(0, len(embedding_texts), batch_embedding):
+            batch_embedding_texts = embedding_texts[i : i + batch_embedding]
+            batch_embeddings = await self._embedding_client.aembed_documents(
+                batch_embedding_texts
             )
+            embeddings.extend(batch_embeddings)
 
-    async def _save_metrics_to_MySQL(self, metrics: list[MetricConfig]):
-        pass
+        await self._column_qdrant_repository.insert_and_update(
+            ids, embeddings, payloads
+        )
 
     async def _save_metrics_to_Qrant(self, metric_infos: list[MetricInfoEntity]):
-        pass
+        await self._metric_qdrant_repository.create_collection()
+        points: list[dict] = []
+        for metric_info in metric_infos:
+            i = 0
+            points.append(
+                {
+                    "id": uuid.uuid5(uuid.NAMESPACE_DNS, f"{metric_info.name}_{i}"),
+                    "embedding_text": metric_info.name,
+                    "payload": metric_info,
+                }
+            )
+            i += 1
+            points.append(
+                {
+                    "id": uuid.uuid5(uuid.NAMESPACE_DNS, f"{metric_info.name}_{i}"),
+                    "embedding_text": metric_info.description,
+                    "payload": metric_info,
+                }
+            )
+
+            for alias in metric_info.alias:
+                i += 1
+                points.append(
+                    {
+                        "id": uuid.uuid5(uuid.NAMESPACE_DNS, f"{metric_info.name}_{i}"),
+                        "embedding_text": alias,
+                        "payload": metric_info,
+                    }
+                )
+
+        embedding_texts = [point["embedding_text"] for point in points]
+        ids = [point["id"] for point in points]
+        payloads = [point["payload"] for point in points]
+        embeddings = []
+        batch_embedding = 20
+
+        for i in range(0, len(embedding_texts), batch_embedding):
+            batch_embedding_texts = embedding_texts[i : i + batch_embedding]
+            batch_embeddings = await self._embedding_client.aembed_documents(
+                batch_embedding_texts
+            )
+            embeddings.extend(batch_embeddings)
+        await self._metric_qdrant_repository.insert_update(ids, embeddings, payloads)
+
+    async def _save_columns_to_elastic_search(
+        self, column_infos: list[ColumnInfoEntity], tables: list[TableConfig]
+    ):
+        column_to_sync: dict[str, bool] = {}
+
+        for table in tables:
+            for column in table.columns:
+                column_to_sync[f"{table.name}.{column.name}"] = column.sync
+
+        value_infos: list[ValueInfo] = []
+        for column_info in column_infos:
+            sync = column_to_sync.get(column_info.id, False)
+
+            if sync:
+                table_name = column_info.table_id
+                column_name = column_info.name
+                values = await self._dw_MySQL_repository.get_column_values(
+                    table_name, column_name, 10000
+                )
+
+                current_value_infos = [
+                    ValueInfo(
+                        id=f"{column_info.id}.{value}",
+                        value=value,
+                        column_id=column_info.id,
+                    )
+                    for value in values
+                ]
+                value_infos.extend(current_value_infos)
+        await self._cloumn_es_repository.create_index()
+        await self._cloumn_es_repository.insert_index(value_infos)
+
+    async def _save_metrics_to_MySQL(self, metrics: list[MetricConfig]):
+        metric_infos: list[MetricInfoEntity] = []
+        column_metrics: list[ColumnMetricEntity] = []
+
+        for metric in metrics:
+            metric_info = MetricInfoEntity(
+                id=metric.name,
+                name=metric.name,
+                description=metric.description,
+                alias=metric.alias,
+                relevant_columns=metric.relevant_columns,
+            )
+            metric_infos.append(metric_info)
+
+            for column in metric.relevant_columns:
+                column_metrics.append(
+                    ColumnMetricEntity(column_id=column, metric_id=metric.name)
+                )
+
+        print(metric_infos)
+        print("=" * 20)
+        print(column_metrics)
+
+        return metric_infos

@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # ==========================================
   # 1. 本地 MySQL 8.0 服务 (包含 meta 与 dw 库)
@@ -62,8 +60,26 @@ services:
       fi;
       /bin/tini -- /usr/local/bin/docker-entrypoint.sh eswrapper"
 
+  # ==========================================
+  # 4. 本地 Embedding 向量嵌入服务 (TEI - Text Embeddings Inference)
+  # ==========================================
+  embedding:
+    image: ai/qwen3-embedding-vllm:0.6B
+    container_name: text2sql-embedding
+    restart: always
+    ports:
+      - "12434"
+    volumes:
+      - tei_data:/data # 持久化模型缓存，避免容器重启后重复下载模型
+    command:
+      - --header
+      - 'Content-Type: application/json'
+      - --data
+      - "{'model':'ai/qwen3-embedding-vllm'}"
+
 volumes:
   mysql_data:
   qdrant_data:
   es_data:
   es_plugins:
+  tei_data:

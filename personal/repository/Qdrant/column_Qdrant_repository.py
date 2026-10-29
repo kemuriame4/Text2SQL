@@ -1,4 +1,4 @@
-from attr import asdict
+from dataclasses import asdict
 from qdrant_client import AsyncQdrantClient
 from qdrant_client.http.models import Distance, VectorParams, PointStruct
 
@@ -19,7 +19,7 @@ class ColumnQdrantRepository:
                 vectors_config=VectorParams(size=self._size, distance=Distance.DOT),
             )
 
-    async def insert_update(
+    async def insert_and_update(
         self,
         ids: list[str],
         embeddings: list[list[float]],

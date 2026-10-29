@@ -1,9 +1,10 @@
 from elasticsearch import AsyncElasticsearch
-from app.conf.app_config import ESConfig
+
+from personal.config.app_config import EmbeddingConfig
 
 
 class CustomESClient:
-    def __init__(self, config: ESConfig):
+    def __init__(self, config: EmbeddingConfig):
         self._config = config
         self._url = self._get_url()
 

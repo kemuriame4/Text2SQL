@@ -10,8 +10,8 @@ class TableInfoMySQLRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    def get_table_info_by_id(self, id: str):
-        result: TableInfoModel = self.session.get(TableInfoModel, id)
+    async def get_table_info_by_id(self, id: str):
+        result: TableInfoModel = await self.session.get(TableInfoModel, id)
         if result is None:
             return None
         return TableInfoMapper.to_entity(result)
@@ -20,7 +20,9 @@ class TableInfoMySQLRepository:
         self.session.add(TableInfoMapper.to_model(table_info))
 
     def batch_add_table_infos(self, table_infos: list[TableInfoEntity]):
-        self.session.add_all([TableInfoMapper.to_model for table_info in table_infos])
+        self.session.add_all(
+            [TableInfoMapper.to_model(table_info) for table_info in table_infos]
+        )
 
     async def update_table_info(self, table_info: TableInfoEntity):
         stmt = (
@@ -44,8 +46,8 @@ class MetricMySQLRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    def get_table_info_by_id(self, id: str):
-        result: MetricInfoModel = self.session.get(MetricInfoModel, id)
+    async def get_table_info_by_id(self, id: str):
+        result: MetricInfoModel = await self.session.get(MetricInfoModel, id)
         if result is None:
             return None
         return MetricInfoMapper.to_entity(result)

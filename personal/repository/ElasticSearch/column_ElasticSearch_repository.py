@@ -1,10 +1,10 @@
-from attr import asdict
+from dataclasses import asdict
 from elasticsearch import AsyncElasticsearch
-from app.entity.value_info import ValueInfo
+from personal.entity.base_entity import ValueInfo
 
 
 class ColumnElasticSearchRepository:
-    _index_name = "column_ES_kemuriame"
+    _index_name = "column_es_kemuriame"
     _index_mapping = {
         "dynamic": False,
         "properties": {

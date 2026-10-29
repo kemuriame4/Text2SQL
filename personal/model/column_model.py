@@ -5,7 +5,7 @@ from personal.model.base_model import BaseModel
 
 
 class ColumnInfoModel(BaseModel):
-    __tablename__ = "t_colomn_info"
+    __tablename__ = "t_column_info"
     id: Mapped[str] = mapped_column(String(32), primary_key=True, comment="主键id")
     name: Mapped[str] = mapped_column(String(64), comment="名称")
     role: Mapped[str] = mapped_column(
@@ -16,7 +16,7 @@ class ColumnInfoModel(BaseModel):
     type: Mapped[str] = mapped_column(String(64), comment="数据类型")
     alias: Mapped[str] = mapped_column(JSON, comment="别名")
     table_id: Mapped[str] = mapped_column(String(32), comment="表id")
-    qdrant_id: Mapped[str] = mapped_column(String(32), comment="向量id")
+    # qdrant_id: Mapped[str] = mapped_column(String(32), comment="向量id")
 
 
 class ColumnMetricModel(BaseModel):

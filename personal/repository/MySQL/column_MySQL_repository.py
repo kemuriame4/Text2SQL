@@ -11,8 +11,8 @@ class ColumnInfoMySQLRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    def get_column_info_by_id(self, id: str):
-        result: ColumnInfoModel = self.session.get(ColumnInfoModel, id)
+    async def get_column_info_by_id(self, id: str):
+        result: ColumnInfoModel = await self.session.get(ColumnInfoModel, id)
         if result is None:
             return None
         return ColumnInfoMapper.to_entity(result)
@@ -47,8 +47,8 @@ class ColumnMetricMySQLRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    def get_table_info_by_id(self, column_id: str, metric_id: str) -> MetricInfoEntity:
-        result: ColumnMetricModel = self.session.get(
+    async def get_table_info_by_id(self, column_id: str, metric_id: str) -> MetricInfoEntity:
+        result: ColumnMetricModel = await self.session.get(
             ColumnMetricModel, {"column_id": column_id, "metric_id": metric_id}
         )
         if result is None:

@@ -1,4 +1,4 @@
-from attr import asdict
+from dataclasses import asdict
 from qdrant_client import AsyncQdrantClient
 from qdrant_client.http.models import PointStruct, Distance, VectorParams
 
@@ -19,11 +19,11 @@ class MetricQdrantRepository:
                 vectors_config=VectorParams(size=self._size, distance=Distance.DOT),
             )
 
-    async def insert_update(
+    async def insert_and_update(
         self,
         ids: list[str],
         embeddings: list[list[float]],
-        payloads: MetricInfoEntity,
+        payloads: list[MetricInfoEntity],
         batch_size: int = 20,
     ):
         zipped = list(zip(ids, embeddings, payloads))
